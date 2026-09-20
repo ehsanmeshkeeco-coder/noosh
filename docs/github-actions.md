@@ -70,6 +70,9 @@
 
 ## ۵. عیب‌یابی خطاهای رایج در پایپ‌لاین
 
+- **خطای `./gradlew: No such file or directory` یا خطا در مرحله Run Unit Tests**:
+  - این مشکل به دلیل نبود اسکریپت `gradlew` و `gradle-wrapper.jar` در مخزن بود که اکنون ایجاد و اضافه شد. همچنین اکشن رسمی `gradle/actions/setup-gradle@v4` جهت تنظیم خودکار مجوزهای اجرایی و اعتبارسنجی Wrapper اضافه گردید.
+  - نتایج گزارش کامل تست‌ها (`HTML Report`) نیز به عنوان Artifact با نام `test-results` ذخیره می‌شود.
 - **خطای Keystore not found یا Decryption failed**:
   - بررسی کنید که رشته `RELEASE_KEYSTORE_BASE64` دقیقاً بدون کاراکترهای شکست خط (Newlines) کپی شده باشد.
 - **خطای Keystore was tampered with, or password was incorrect**:

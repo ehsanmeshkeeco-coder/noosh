@@ -6,11 +6,14 @@ import android.util.Log
 import com.example.data.remote.model.UserDevice
 import com.example.data.remote.supabase.SupabaseClient
 import com.example.domain.repository.UserRepository
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailabilityLight
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.util.UUID
 
 class FcmTokenManager(
     private val context: Context,
@@ -26,15 +29,32 @@ class FcmTokenManager(
 
     fun initTokenRegistration() {
         scope.launch(Dispatchers.IO) {
+            val availability = GoogleApiAvailabilityLight.getInstance().isGooglePlayServicesAvailable(context)
+            if (availability != ConnectionResult.SUCCESS) {
+                Log.i(TAG, "Google Play Services not available (code $availability), using local device token.")
+                ensureFallbackToken()
+                return@launch
+            }
+
             try {
                 val token = FirebaseMessaging.getInstance().token.await()
                 if (!token.isNullOrBlank()) {
                     onNewToken(token)
                 }
             } catch (e: Exception) {
-                Log.w(TAG, "Failed to retrieve initial FCM token: ${e.message}")
+                Log.w(TAG, "FirebaseMessaging token retrieval unavailable: ${e.message}. Using fallback token.")
+                ensureFallbackToken()
             }
         }
+    }
+
+    private fun ensureFallbackToken() {
+        var token = prefs.getString(KEY_FCM_TOKEN, null)
+        if (token.isNullOrBlank()) {
+            token = "local_dev_${UUID.randomUUID()}"
+            prefs.edit().putString(KEY_FCM_TOKEN, token).apply()
+        }
+        onNewToken(token)
     }
 
     fun onNewToken(token: String) {

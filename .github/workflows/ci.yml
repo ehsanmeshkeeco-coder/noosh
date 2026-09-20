@@ -20,24 +20,42 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: gradle
 
-      - name: Decode Google Services JSON
-        if: "${{ env.GOOGLE_SERVICES_JSON != '' }}"
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Setup Environment Files
+        run: |
+          if [ ! -f .env ] && [ -f .env.example ]; then
+            cp .env.example .env
+          fi
+
+      - name: Setup Google Services JSON
         env:
-          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+          GOOGLE_SERVICES_JSON_SECRET: ${{ secrets.GOOGLE_SERVICES_JSON }}
         run: |
           mkdir -p app
-          echo "$GOOGLE_SERVICES_JSON" | base64 --decode > app/google-services.json 2>/dev/null || echo "$GOOGLE_SERVICES_JSON" > app/google-services.json
+          if [ -n "$GOOGLE_SERVICES_JSON_SECRET" ]; then
+            echo "$GOOGLE_SERVICES_JSON_SECRET" | base64 --decode > app/google-services.json 2>/dev/null || echo "$GOOGLE_SERVICES_JSON_SECRET" > app/google-services.json
+          elif [ -f "app/google-services.json.base64" ]; then
+            base64 --decode app/google-services.json.base64 > app/google-services.json 2>/dev/null || cat app/google-services.json.base64 > app/google-services.json
+          fi
 
       - name: Grant execute permission for gradlew
-        run: chmod +x gradlew || true
+        run: chmod +x gradlew
 
       - name: Run Unit Tests
-        run: ./gradlew testDebugUnitTest --continue
+        run: ./gradlew testDebugUnitTest --continue --no-daemon
+
+      - name: Upload Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: app/build/reports/tests/
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleDebug --no-daemon
 
       - name: Upload Debug APK Artifact
         uses: actions/upload-artifact@v4
