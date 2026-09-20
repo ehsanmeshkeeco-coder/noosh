@@ -1,6 +1,9 @@
 package com.example.presentation.screens
 
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.CloudDone
 import androidx.compose.material.icons.filled.CloudSync
 import androidx.compose.material.icons.filled.Favorite
@@ -49,12 +53,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.R
 import com.example.core.util.DateTimeUtils
 import com.example.data.remote.clerk.AuthState
@@ -77,6 +83,23 @@ fun ProfileSettingsScreen(
     val profile = dashboardState?.profile
     var currentGoal by remember(profile) { mutableIntStateOf(profile?.dailyWaterGoalMl ?: 2000) }
     var graceDayEnabled by remember(profile) { mutableStateOf(profile?.graceDayEnabled ?: true) }
+
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            try {
+                val inputStream = context.contentResolver.openInputStream(uri)
+                val bytes = inputStream?.readBytes()
+                if (bytes != null) {
+                    viewModel.uploadAvatar(bytes, uri.toString())
+                    Toast.makeText(context, "تصویر پروفایل در حال ذخیره و بارگذاری...", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(context, "خطا در پردازش تصویر", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     LazyColumn(
         modifier = modifier
@@ -123,17 +146,50 @@ fun ProfileSettingsScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(54.dp)
+                                .size(58.dp)
                                 .clip(CircleShape)
-                                .background(NooshSubtleBlue),
+                                .background(NooshSubtleBlue)
+                                .clickable {
+                                    photoPickerLauncher.launch(
+                                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                    )
+                                },
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = "پروفایل",
-                                tint = NooshPrimary,
-                                modifier = Modifier.size(30.dp)
-                            )
+                            if (!profile?.profileImageUrl.isNullOrBlank()) {
+                                AsyncImage(
+                                    model = profile?.profileImageUrl,
+                                    contentDescription = "تصویر پروفایل",
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .clip(CircleShape),
+                                    contentScale = ContentScale.Crop
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Default.Person,
+                                    contentDescription = "پروفایل",
+                                    tint = NooshPrimary,
+                                    modifier = Modifier.size(32.dp)
+                                )
+                            }
+
+                            // Camera overlay badge
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .size(20.dp)
+                                    .clip(CircleShape)
+                                    .background(NooshPrimary),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.CameraAlt,
+                                    contentDescription = "تغییر تصویر",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(12.dp)
+                                )
+                            }
                         }
 
                         Spacer(modifier = Modifier.width(14.dp))
@@ -196,7 +252,7 @@ fun ProfileSettingsScreen(
                             color = Color(0xFF0F172A)
                         )
                         Text(
-                            text = "${DateTimeUtils.toPersianDigits(currentGoal.toString())} ml (${currentGoal / 250} لیوان)",
+                            text = "${DateTimeUtils.toPersianDigits(currentGoal.toString())} میلی‌لیتر (${DateTimeUtils.toPersianDigits((currentGoal / 250).toString())} لیوان)",
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Black,
                             color = NooshPrimary

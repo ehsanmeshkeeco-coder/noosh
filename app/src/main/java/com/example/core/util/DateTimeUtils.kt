@@ -63,4 +63,27 @@ object DateTimeUtils {
         }
         return sb.toString()
     }
+
+    fun parseDateToStartOfDayMillis(dateStr: String): Long {
+        return try {
+            val date = LocalDate.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE)
+            getStartOfDayMillis(date)
+        } catch (e: Exception) {
+            getStartOfDayMillis()
+        }
+    }
+
+    fun parseDateToEndOfDayMillis(dateStr: String): Long {
+        return try {
+            val date = LocalDate.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE)
+            getEndOfOfDayMillis(date)
+        } catch (e: Exception) {
+            getEndOfOfDayMillis()
+        }
+    }
+
+    fun formatDateIso(epochMillis: Long): String {
+        val zdt = Instant.ofEpochMilli(epochMillis).atZone(zoneId)
+        return zdt.format(DateTimeFormatter.ISO_LOCAL_DATE)
+    }
 }

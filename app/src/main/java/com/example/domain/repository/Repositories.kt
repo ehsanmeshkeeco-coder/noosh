@@ -18,6 +18,7 @@ interface WaterRepository {
     suspend fun getTodayTotalMl(userId: String = "default_user"): Int
     suspend fun getTodayWaterIntakes(userId: String = "default_user"): List<WaterIntake>
     suspend fun getDailySummary(date: String, userId: String = "default_user"): DailySummary?
+    suspend fun recalculateDailySummary(date: String, userId: String = "default_user"): DailySummary?
     fun getWeeklyReportFlow(userId: String = "default_user"): Flow<WeeklyReport>
     suspend fun getMonthlyReport(monthOffset: Int = 0, userId: String = "default_user"): MonthlyReport
     suspend fun calculateStreak(userId: String = "default_user"): StreakInfo
@@ -65,6 +66,8 @@ interface HealthRepository {
 
 interface SyncRepository {
     suspend fun syncPendingIntakes(): Boolean
+    suspend fun processOutboxSync(): Boolean
     suspend fun pullRemoteUpdates(): Boolean
     fun isOnline(): Boolean
+    fun getPendingOutboxCountFlow(): Flow<Int>
 }

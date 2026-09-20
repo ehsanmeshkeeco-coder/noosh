@@ -265,7 +265,7 @@ fun RemindersScreen(
                         .padding(16.dp)
                 ) {
                     Text(
-                        text = "تشخیص عدم فعالیت طولانی (Inactivity Alert)",
+                        text = "تشخیص عدم فعالیت طولانی",
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF0F172A)

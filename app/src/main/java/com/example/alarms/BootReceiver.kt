@@ -26,6 +26,9 @@ class BootReceiver : BroadcastReceiver() {
                             app.reminderRepository.scheduleDailyReminders(profile)
                             app.reminderScheduler.scheduleNextPendingReminder()
                         }
+                        // Section 75: Phone restart recovery - trigger Sync Worker
+                        app.syncManager.triggerImmediateSync()
+                        com.example.data.remote.sync.SyncWorker.schedulePeriodicSync(context)
                     } finally {
                         pendingResult.finish()
                     }

@@ -28,6 +28,9 @@ interface WaterIntakeDao {
     @Query("SELECT * FROM water_intakes WHERE synced = 0")
     suspend fun getUnsyncedIntakes(): List<WaterIntakeEntity>
 
+    @Query("SELECT * FROM water_intakes WHERE id = :id")
+    suspend fun getIntakeById(id: String): WaterIntakeEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertIntake(intake: WaterIntakeEntity)
 

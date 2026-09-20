@@ -38,7 +38,9 @@ class NooshApplication : Application() {
             waterIntakeDao = database.waterIntakeDao(),
             dailySummaryDao = database.dailyWaterSummaryDao(),
             userProfileDao = database.userProfileDao(),
-            reminderDao = database.reminderDao()
+            reminderDao = database.reminderDao(),
+            syncOutboxDao = database.syncOutboxDao(),
+            database = database
         )
     }
 
@@ -74,7 +76,9 @@ class NooshApplication : Application() {
             userRepository = userRepository,
             reminderRepository = reminderRepository,
             inactivityDetector = inactivityDetector,
-            scope = applicationScope
+            scope = applicationScope,
+            syncOutboxDao = database.syncOutboxDao(),
+            database = database
         )
     }
 
@@ -91,7 +95,24 @@ class NooshApplication : Application() {
         SyncManager(
             context = this,
             waterIntakeDao = database.waterIntakeDao(),
-            supabaseClient = supabaseClient
+            supabaseClient = supabaseClient,
+            syncOutboxDao = database.syncOutboxDao(),
+            healthAlertEventDao = database.healthAlertEventDao(),
+            waterRepository = waterRepository,
+            userRepository = userRepository
+        )
+    }
+
+    val networkMonitor: com.example.core.network.NetworkMonitor by lazy {
+        com.example.core.network.NetworkMonitor(
+            context = this,
+            scope = applicationScope,
+            onNetworkRestored = {
+                com.example.data.remote.sync.SyncWorker.enqueueImmediateSync(this)
+                applicationScope.launch(Dispatchers.IO) {
+                    syncManager.processOutboxSync()
+                }
+            }
         )
     }
 
@@ -139,6 +160,9 @@ class NooshApplication : Application() {
         super.onCreate()
         NotificationHelper.createNotificationChannel(this)
         fcmTokenManager.initTokenRegistration()
+
+        networkMonitor.startMonitoring()
+        com.example.data.remote.sync.SyncWorker.schedulePeriodicSync(this)
 
         applicationScope.launch(Dispatchers.IO) {
             val profile = userRepository.getUserProfile()

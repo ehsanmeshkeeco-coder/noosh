@@ -54,10 +54,23 @@ CREATE INDEX IF NOT EXISTS idx_health_events_user ON public.health_alert_events(
 CREATE INDEX IF NOT EXISTS idx_health_events_date ON public.health_alert_events(date);
 CREATE INDEX IF NOT EXISTS idx_health_events_status ON public.health_alert_events(delivery_status);
 
+-- 4. Companion Rooms for Invite-Code Pairing
+CREATE TABLE IF NOT EXISTS public.companion_rooms (
+    room_code TEXT PRIMARY KEY,
+    host_user_id TEXT NOT NULL,
+    host_name TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'WAITING', -- WAITING, CONNECTED, EXPIRED
+    created_at BIGINT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_companion_rooms_host ON public.companion_rooms(host_user_id);
+CREATE INDEX IF NOT EXISTS idx_companion_rooms_status ON public.companion_rooms(status);
+
 -- Enable Row Level Security (RLS)
 ALTER TABLE public.user_devices ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.health_companion_connections ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.health_alert_events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.companion_rooms ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies: Allow authenticated and anon with appropriate user checks
 CREATE POLICY "Users manage own devices" ON public.user_devices
@@ -68,3 +81,17 @@ CREATE POLICY "Users manage companion connections" ON public.health_companion_co
 
 CREATE POLICY "Users and companions access health alert events" ON public.health_alert_events
     FOR ALL USING (true);
+
+CREATE POLICY "Users access companion rooms" ON public.companion_rooms
+    FOR ALL USING (true);
+
+-- 5. Storage bucket for user avatars
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('avatars', 'avatars', true)
+ON CONFLICT (id) DO NOTHING;
+
+CREATE POLICY "Public Avatar Access" ON storage.objects
+    FOR SELECT USING (bucket_id = 'avatars');
+
+CREATE POLICY "Avatar Upload Access" ON storage.objects
+    FOR INSERT WITH CHECK (bucket_id = 'avatars');

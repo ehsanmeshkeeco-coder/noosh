@@ -101,7 +101,7 @@ fun WeeklyAnalyticsScreen(
 
                 MetricCard(
                     title = "میانگین روزانه",
-                    value = "${DateTimeUtils.toPersianDigits(avgMl.toString())} ml",
+                    value = "${DateTimeUtils.toPersianDigits(avgMl.toString())} میلی‌لیتر",
                     subtitle = "حدود ${(avgMl / 250)} لیوان",
                     modifier = Modifier.weight(1f)
                 )
@@ -278,13 +278,13 @@ private fun DailyDetailCard(day: DayIntake) {
 
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = "${DateTimeUtils.toPersianDigits(day.amountMl.toString())} ml",
+                    text = "${DateTimeUtils.toPersianDigits(day.amountMl.toString())} میلی‌لیتر",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF0F172A)
                 )
                 Text(
-                    text = if (isGoalReached) "هدف کامل شد ✓" else "${DateTimeUtils.toPersianDigits((day.goalMl - day.amountMl).toString())} ml مانده",
+                    text = if (isGoalReached) "هدف کامل شد ✓" else "${DateTimeUtils.toPersianDigits((day.goalMl - day.amountMl).toString())} میلی‌لیتر مانده",
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Medium,
                     color = if (isGoalReached) SuccessGreen else Color(0xFF94A3B8)

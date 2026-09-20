@@ -9,12 +9,14 @@ import com.example.data.local.room.dao.DailyWaterSummaryDao
 import com.example.data.local.room.dao.HealthAlertEventDao
 import com.example.data.local.room.dao.HealthCompanionDao
 import com.example.data.local.room.dao.ReminderDao
+import com.example.data.local.room.dao.SyncOutboxDao
 import com.example.data.local.room.dao.UserProfileDao
 import com.example.data.local.room.dao.WaterIntakeDao
 import com.example.data.local.room.entity.DailyWaterSummaryEntity
 import com.example.data.local.room.entity.HealthAlertEventEntity
 import com.example.data.local.room.entity.HealthCompanionEntity
 import com.example.data.local.room.entity.ReminderEntity
+import com.example.data.local.room.entity.SyncOutboxEntity
 import com.example.data.local.room.entity.UserProfileEntity
 import com.example.data.local.room.entity.WaterIntakeEntity
 import kotlinx.coroutines.CoroutineScope
@@ -28,9 +30,10 @@ import kotlinx.coroutines.launch
         ReminderEntity::class,
         DailyWaterSummaryEntity::class,
         HealthAlertEventEntity::class,
-        HealthCompanionEntity::class
+        HealthCompanionEntity::class,
+        SyncOutboxEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class NooshDatabase : RoomDatabase() {
@@ -40,6 +43,7 @@ abstract class NooshDatabase : RoomDatabase() {
     abstract fun dailyWaterSummaryDao(): DailyWaterSummaryDao
     abstract fun healthAlertEventDao(): HealthAlertEventDao
     abstract fun healthCompanionDao(): HealthCompanionDao
+    abstract fun syncOutboxDao(): SyncOutboxDao
 
     companion object {
         @Volatile

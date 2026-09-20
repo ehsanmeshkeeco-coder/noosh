@@ -21,6 +21,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -63,7 +64,8 @@ class MainActivity : ComponentActivity() {
             clerkAuthManager = app.clerkAuthManager,
             reminderScheduler = app.reminderScheduler,
             healthCompanionManager = app.healthCompanionManager,
-            fcmTokenManager = app.fcmTokenManager
+            fcmTokenManager = app.fcmTokenManager,
+            supabaseClient = app.supabaseClient
         )
     }
 
@@ -107,8 +109,18 @@ fun MainAppScaffold(viewModel: MainViewModel) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val authState by viewModel.authState.collectAsState()
 
     val showBottomBar = currentRoute != Screen.Auth.route
+
+    // If unauthenticated at startup, route to Auth
+    LaunchedEffect(authState) {
+        if (authState is com.example.data.remote.clerk.AuthState.Unauthenticated && currentRoute != Screen.Auth.route) {
+            navController.navigate(Screen.Auth.route) {
+                popUpTo(0) { inclusive = true }
+            }
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -117,13 +129,14 @@ fun MainAppScaffold(viewModel: MainViewModel) {
             if (showBottomBar) {
                 NavigationBar(
                     containerColor = Color.White,
-                    tonalElevation = 6.dp,
+                    tonalElevation = 4.dp,
                     modifier = Modifier.testTag("bottom_navigation_bar")
                 ) {
                     BottomNavScreens.forEach { screen ->
                         val isSelected = currentRoute == screen.route
                         NavigationBarItem(
                             selected = isSelected,
+                            alwaysShowLabel = false,
                             onClick = {
                                 if (currentRoute != screen.route) {
                                     navController.navigate(screen.route) {
@@ -140,13 +153,6 @@ fun MainAppScaffold(viewModel: MainViewModel) {
                                     imageVector = if (isSelected) screen.selectedIcon else screen.unselectedIcon,
                                     contentDescription = stringResource(screen.titleResId),
                                     tint = if (isSelected) NooshPrimary else Color(0xFF94A3B8)
-                                )
-                            },
-                            label = {
-                                Text(
-                                    text = stringResource(screen.titleResId),
-                                    fontSize = 11.sp,
-                                    color = if (isSelected) NooshPrimary else Color(0xFF64748B)
                                 )
                             },
                             colors = NavigationBarItemDefaults.colors(
@@ -193,7 +199,19 @@ fun MainAppScaffold(viewModel: MainViewModel) {
             composable(Screen.Auth.route) {
                 AuthScreen(
                     viewModel = viewModel,
-                    onNavigateBack = { navController.popBackStack() }
+                    onNavigateBack = {
+                        if (!navController.popBackStack()) {
+                            // If there's nowhere to pop back, go to Dashboard
+                            navController.navigate(Screen.Dashboard.route) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        }
+                    },
+                    onAuthSuccess = {
+                        navController.navigate(Screen.Dashboard.route) {
+                            popUpTo(Screen.Auth.route) { inclusive = true }
+                        }
+                    }
                 )
             }
         }

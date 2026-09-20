@@ -1,11 +1,18 @@
 package com.example.data.repository
 
+import androidx.room.withTransaction
 import com.example.core.util.DateTimeUtils
 import com.example.data.local.room.dao.DailyWaterSummaryDao
 import com.example.data.local.room.dao.ReminderDao
 import com.example.data.local.room.dao.UserProfileDao
 import com.example.data.local.room.dao.WaterIntakeDao
+import com.example.data.local.room.dao.SyncOutboxDao
+import com.example.data.local.room.database.NooshDatabase
 import com.example.data.local.room.entity.DailyWaterSummaryEntity
+import com.example.data.local.room.entity.SyncEntityType
+import com.example.data.local.room.entity.SyncOperation
+import com.example.data.local.room.entity.SyncOutboxEntity
+import com.example.data.local.room.entity.SyncOutboxStatus
 import com.example.data.local.room.entity.WaterIntakeEntity
 import com.example.domain.model.DailySummary
 import com.example.domain.model.DayIntake
@@ -17,6 +24,7 @@ import com.example.domain.model.WeeklyReport
 import com.example.domain.repository.WaterRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import org.json.JSONObject
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.UUID
@@ -25,7 +33,9 @@ class WaterRepositoryImpl(
     private val waterIntakeDao: WaterIntakeDao,
     private val dailySummaryDao: DailyWaterSummaryDao,
     private val userProfileDao: UserProfileDao,
-    private val reminderDao: ReminderDao
+    private val reminderDao: ReminderDao,
+    private val syncOutboxDao: SyncOutboxDao? = null,
+    private val database: NooshDatabase? = null
 ) : WaterRepository {
 
     override fun getTodayIntakesFlow(userId: String): Flow<List<WaterIntake>> {
@@ -71,6 +81,22 @@ class WaterRepositoryImpl(
             createdAt = now,
             synced = false
         )
+
+        return if (database != null) {
+            database.withTransaction {
+                saveIntakeWithOutbox(entity, userId, now, reminderId)
+            }
+        } else {
+            saveIntakeWithOutbox(entity, userId, now, reminderId)
+        }
+    }
+
+    private suspend fun saveIntakeWithOutbox(
+        entity: WaterIntakeEntity,
+        userId: String,
+        now: Long,
+        reminderId: String?
+    ): WaterIntake {
         waterIntakeDao.insertIntake(entity)
 
         // Update daily summary
@@ -100,11 +126,67 @@ class WaterRepositoryImpl(
             reminderDao.updateReminderStatus(id, ReminderStatus.COMPLETED.name, now)
         }
 
+        // Section 64: Sync Outbox Pattern - Atomic with original data change
+        syncOutboxDao?.let { outbox ->
+            val payload = JSONObject().apply {
+                put("id", entity.id)
+                put("userId", entity.userId)
+                put("amountMl", entity.amountMl)
+                put("consumedAt", entity.consumedAt)
+                put("source", entity.source)
+                put("reminderId", entity.reminderId)
+                put("createdAt", entity.createdAt)
+            }.toString()
+
+            val outboxEntry = SyncOutboxEntity(
+                id = UUID.randomUUID().toString(),
+                userId = userId,
+                entityType = SyncEntityType.WATER_INTAKE.name,
+                entityId = entity.id,
+                operation = SyncOperation.INSERT.name,
+                payload = payload,
+                createdAt = now,
+                attemptCount = 0,
+                lastAttemptAt = null,
+                nextRetryAt = now,
+                status = SyncOutboxStatus.PENDING.name,
+                idempotencyKey = "$userId:WATER_INTAKE:${entity.id}",
+                lastError = null
+            )
+            outbox.insertOutbox(outboxEntry)
+        }
+
         return entity.toDomain()
     }
 
     override suspend fun getDailySummary(date: String, userId: String): DailySummary? {
         return dailySummaryDao.getSummaryForDate(date, userId)?.toDomain()
+    }
+
+    override suspend fun recalculateDailySummary(date: String, userId: String): DailySummary? {
+        val start = DateTimeUtils.parseDateToStartOfDayMillis(date)
+        val end = DateTimeUtils.parseDateToEndOfDayMillis(date)
+        val totalForDate = waterIntakeDao.getTotalIntakeBetween(userId, start, end)
+
+        val profile = userProfileDao.getUserProfile(userId)
+        val goalMl = profile?.dailyWaterGoalMl ?: 2000
+        val percentage = ((totalForDate.toFloat() / goalMl) * 100).toInt().coerceAtMost(100)
+
+        val existingSummary = dailySummaryDao.getSummaryForDate(date, userId)
+        val completed = existingSummary?.completedReminders ?: 0
+        val missed = existingSummary?.missedReminders ?: 0
+
+        val updated = DailyWaterSummaryEntity(
+            date = date,
+            userId = userId,
+            totalConsumedMl = totalForDate,
+            goalMl = goalMl,
+            percentage = percentage,
+            completedReminders = completed,
+            missedReminders = missed
+        )
+        dailySummaryDao.insertOrUpdateSummary(updated)
+        return updated.toDomain()
     }
 
     override fun getWeeklyReportFlow(userId: String): Flow<WeeklyReport> {

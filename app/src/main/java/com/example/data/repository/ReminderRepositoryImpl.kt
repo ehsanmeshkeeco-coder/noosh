@@ -87,14 +87,26 @@ class ReminderRepositoryImpl(
         val today = LocalDate.now(DateTimeUtils.zoneId)
         val startTime = DateTimeUtils.parseTime(profile.wakeUpTime)
         val endTime = DateTimeUtils.parseTime(profile.sleepTime)
-        val intervalMinutes = profile.reminderIntervalMinutes.coerceAtLeast(15)
+        val intervalMinutes = profile.reminderIntervalMinutes.coerceIn(15, 720)
 
-        var currentTime = startTime
+        val startZdt = today.atTime(startTime).atZone(DateTimeUtils.zoneId)
+        var endZdt = today.atTime(endTime).atZone(DateTimeUtils.zoneId)
+
+        // If sleep time is on or before wake up time (e.g., wake up 08:00, sleep 01:00 next day)
+        if (!endZdt.isAfter(startZdt)) {
+            endZdt = endZdt.plusDays(1)
+        }
+
         val now = System.currentTimeMillis()
         val newReminders = mutableListOf<ReminderEntity>()
 
-        while (currentTime.isBefore(endTime) || currentTime == endTime) {
-            val scheduledMillis = today.atTime(currentTime).atZone(DateTimeUtils.zoneId).toInstant().toEpochMilli()
+        var currentZdt = startZdt
+        var count = 0
+        val maxRemindersPerDay = 50
+
+        while (!currentZdt.isAfter(endZdt) && count < maxRemindersPerDay) {
+            count++
+            val scheduledMillis = currentZdt.toInstant().toEpochMilli()
             if (scheduledMillis > now) {
                 newReminders.add(
                     ReminderEntity(
@@ -106,7 +118,7 @@ class ReminderRepositoryImpl(
                     )
                 )
             }
-            currentTime = currentTime.plusMinutes(intervalMinutes.toLong())
+            currentZdt = currentZdt.plusMinutes(intervalMinutes.toLong())
         }
 
         // Delete future pending reminders and insert new plan

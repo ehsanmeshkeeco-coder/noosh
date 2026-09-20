@@ -239,6 +239,38 @@ class HealthCompanionEndToEndTest {
         assertTrue(shouldAlert(AlertSeverity.HIGH, policyAll))
     }
 
+    @Test
+    fun `test scheduleDailyReminders handles normal and overnight intervals without infinite loop`() = testScope.runTest {
+        val normalProfile = com.example.domain.model.UserProfile(
+            id = "user_normal",
+            wakeUpTime = "08:00",
+            sleepTime = "23:00",
+            reminderIntervalMinutes = 60,
+            reminderEnabled = true
+        )
+        reminderRepository.scheduleDailyReminders(normalProfile)
+
+        // Overnight sleep time (e.g., wake up 09:00, sleep 01:30 next day)
+        val overnightProfile = com.example.domain.model.UserProfile(
+            id = "user_overnight",
+            wakeUpTime = "09:00",
+            sleepTime = "01:30",
+            reminderIntervalMinutes = 30,
+            reminderEnabled = true
+        )
+        reminderRepository.scheduleDailyReminders(overnightProfile)
+
+        // Equal wake and sleep time
+        val edgeProfile = com.example.domain.model.UserProfile(
+            id = "user_edge",
+            wakeUpTime = "08:00",
+            sleepTime = "08:00",
+            reminderIntervalMinutes = 15,
+            reminderEnabled = true
+        )
+        reminderRepository.scheduleDailyReminders(edgeProfile)
+    }
+
     private fun shouldAlert(severity: AlertSeverity, policy: AlertFilterPolicy): Boolean {
         return when (policy) {
             AlertFilterPolicy.ALL -> true

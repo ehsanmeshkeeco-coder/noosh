@@ -163,7 +163,7 @@ fun MonthlyReportScreen(
                         }
                         Spacer(modifier = Modifier.height(10.dp))
                         Text(
-                            text = "${DateTimeUtils.toPersianDigits((report?.bestDayAmountMl ?: 0).toString())} ml",
+                            text = "${DateTimeUtils.toPersianDigits((report?.bestDayAmountMl ?: 0).toString())} میلی‌لیتر",
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Black,
                             color = SuccessGreen
@@ -213,7 +213,7 @@ fun MonthlyReportScreen(
                         }
                         Spacer(modifier = Modifier.height(10.dp))
                         Text(
-                            text = "${DateTimeUtils.toPersianDigits((report?.lowestDayAmountMl ?: 0).toString())} ml",
+                            text = "${DateTimeUtils.toPersianDigits((report?.lowestDayAmountMl ?: 0).toString())} میلی‌لیتر",
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Black,
                             color = Color(0xFFEF4444)

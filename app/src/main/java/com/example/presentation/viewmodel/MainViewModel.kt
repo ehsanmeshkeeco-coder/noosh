@@ -33,6 +33,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainViewModel(
     private val getDashboardDataUseCase: GetDashboardDataUseCase,
@@ -44,7 +45,8 @@ class MainViewModel(
     private val clerkAuthManager: ClerkAuthManager,
     private val reminderScheduler: ReminderScheduler,
     private val healthCompanionManager: HealthCompanionManager? = null,
-    private val fcmTokenManager: FcmTokenManager? = null
+    private val fcmTokenManager: FcmTokenManager? = null,
+    private val supabaseClient: com.example.data.remote.supabase.SupabaseClient? = null
 ) : ViewModel() {
 
     val dashboardState: StateFlow<DashboardState?> = getDashboardDataUseCase()
@@ -310,6 +312,39 @@ class MainViewModel(
         fcmTokenManager?.onUserLogout()
     }
 
+    fun createCompanionRoom(onCodeGenerated: (String) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val code = healthCompanionManager?.createInviteRoom() ?: (100000..999999).random().toString()
+            withContext(Dispatchers.Main) {
+                onCodeGenerated(code)
+            }
+            refreshCompanionStatus()
+        }
+    }
+
+    fun joinCompanionRoom(roomCode: String, companionName: String, onComplete: (Boolean) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val connection = healthCompanionManager?.joinInviteRoom(roomCode, companionName)
+            refreshCompanionStatus()
+            withContext(Dispatchers.Main) {
+                onComplete(connection != null)
+            }
+        }
+    }
+
+    fun uploadAvatar(imageBytes: ByteArray, localUriString: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val profile = userRepository.getUserProfile()
+            // Immediately store localUriString so UI displays it without waiting
+            userRepository.updateProfile(profile.copy(profileImageUrl = localUriString))
+            // Then attempt Supabase Storage upload
+            val remoteUrl = supabaseClient?.uploadAvatar(profile.id, imageBytes)
+            if (remoteUrl != null) {
+                userRepository.updateProfile(profile.copy(profileImageUrl = remoteUrl))
+            }
+        }
+    }
+
     fun dismissCelebration() {
         _celebrationEvent.value = null
     }
@@ -325,7 +360,8 @@ class MainViewModelFactory(
     private val clerkAuthManager: ClerkAuthManager,
     private val reminderScheduler: ReminderScheduler,
     private val healthCompanionManager: HealthCompanionManager? = null,
-    private val fcmTokenManager: FcmTokenManager? = null
+    private val fcmTokenManager: FcmTokenManager? = null,
+    private val supabaseClient: com.example.data.remote.supabase.SupabaseClient? = null
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -340,7 +376,8 @@ class MainViewModelFactory(
                 clerkAuthManager = clerkAuthManager,
                 reminderScheduler = reminderScheduler,
                 healthCompanionManager = healthCompanionManager,
-                fcmTokenManager = fcmTokenManager
+                fcmTokenManager = fcmTokenManager,
+                supabaseClient = supabaseClient
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")

@@ -71,6 +71,7 @@ fun NooshTheme(
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
         MaterialTheme(
             colorScheme = colorScheme,
+            typography = AppTypography,
             content = content
         )
     }

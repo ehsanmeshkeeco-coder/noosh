@@ -46,15 +46,7 @@ class ClerkAuthManager(
             )
             _authState.value = AuthState.Authenticated(user)
         } else {
-            // By default initialize with guest/offline user for immediate frictionless UX
-            val defaultUser = ClerkUser(
-                id = "default_user",
-                firstName = "کاربر گرامی",
-                email = "user@noosh.app",
-                avatarUrl = null,
-                isGuest = true
-            )
-            _authState.value = AuthState.Authenticated(defaultUser)
+            _authState.value = AuthState.Unauthenticated
         }
     }
 
