@@ -1,4 +1,5 @@
 import com.google.gms.googleservices.GoogleServicesPlugin.MissingGoogleServicesStrategy
+import java.util.Base64
 
 plugins {
   alias(libs.plugins.android.application)
@@ -7,6 +8,29 @@ plugins {
   alias(libs.plugins.roborazzi)
   alias(libs.plugins.secrets)
   alias(libs.plugins.google.services)
+}
+
+// Automatically restore keystores from base64 if missing in environment/CI checkout
+val debugKeystoreFile = file("${rootDir}/debug.keystore")
+val debugKeystoreBase64File = file("${rootDir}/debug.keystore.base64")
+if (!debugKeystoreFile.exists() && debugKeystoreBase64File.exists()) {
+  try {
+    val decoded = Base64.getMimeDecoder().decode(debugKeystoreBase64File.readText().trim())
+    debugKeystoreFile.writeBytes(decoded)
+  } catch (e: Exception) {
+    logger.warn("Could not auto-decode debug.keystore.base64: ${e.message}")
+  }
+}
+
+val releaseKeystoreFile = file("${rootDir}/release.keystore")
+val releaseKeystoreBase64File = file("${rootDir}/release.keystore.base64")
+if (!releaseKeystoreFile.exists() && releaseKeystoreBase64File.exists()) {
+  try {
+    val decoded = Base64.getMimeDecoder().decode(releaseKeystoreBase64File.readText().trim())
+    releaseKeystoreFile.writeBytes(decoded)
+  } catch (e: Exception) {
+    logger.warn("Could not auto-decode release.keystore.base64: ${e.message}")
+  }
 }
 
 android {
