@@ -170,7 +170,7 @@ fun CircularWaterProgress(
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = "${DateTimeUtils.toPersianDigits(consumedMl.toString())} / ${DateTimeUtils.toPersianDigits(goalMl.toString())} ml",
+                text = "${DateTimeUtils.toPersianDigits(consumedMl.toString())} / ${DateTimeUtils.toPersianDigits(goalMl.toString())} میلی‌لیتر",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 color = subtextColor

@@ -72,7 +72,7 @@ fun WeeklyBarChart(
                 )
 
                 Text(
-                    text = "هدف: ${DateTimeUtils.toPersianDigits(goalMl.toString())} ml",
+                    text = "هدف: ${DateTimeUtils.toPersianDigits(goalMl.toString())} میلی‌لیتر",
                     fontSize = 12.sp,
                     color = Color(0xFF64748B),
                     fontWeight = FontWeight.Medium

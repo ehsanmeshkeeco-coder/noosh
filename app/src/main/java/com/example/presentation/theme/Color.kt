@@ -8,9 +8,9 @@ val NooshPrimary = Color(0xFF2D9CFF)
 val NooshPrimaryDark = Color(0xFF0284C7)
 val NooshPrimaryLight = Color(0xFF56B7FF)
 val NooshAccent = Color(0xFF8ED3FF)
-val NooshSubtleBlue = Color(0xFFE0F2FE)
-val NooshSoftBackground = Color(0xFFF0F9FF)
-val NooshBackground = NooshSoftBackground
+val NooshSubtleBlue = Color(0xFFDDF4FF)
+val NooshSoftBackground = Color(0xFFE8F6FF)
+val NooshBackground = Color(0xFFE8F6FF)
 val NooshSurface = Color(0xFFFFFFFF)
 
 val NooshWaveStart = Color(0xFF56B7FF)

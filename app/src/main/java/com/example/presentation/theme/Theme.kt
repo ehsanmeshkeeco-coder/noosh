@@ -23,32 +23,32 @@ private val LightColorScheme = lightColorScheme(
     onPrimaryContainer = NooshPrimaryDark,
     secondary = NooshPrimaryLight,
     onSecondary = Color.White,
-    secondaryContainer = NooshSoftBackground,
+    secondaryContainer = Color(0xFFD0EEFF),
     onSecondaryContainer = NooshPrimaryDark,
     tertiary = NooshAccent,
-    background = Color(0xFFF8FAFC),
+    background = Color(0xFFE8F6FF),
     onBackground = TextPrimary,
-    surface = NooshSurface,
+    surface = Color.White,
     onSurface = TextPrimary,
-    surfaceVariant = NooshSoftBackground,
+    surfaceVariant = Color(0xFFDDF2FF),
     onSurfaceVariant = TextSecondary,
-    outline = BorderSubtle
+    outline = Color(0xFFBAE6FD)
 )
 
-private val DarkColorScheme = darkColorScheme(
-    primary = NooshPrimaryLight,
-    onPrimary = Color(0xFF003258),
-    primaryContainer = Color(0xFF00497D),
-    onPrimaryContainer = Color(0xFFD1E4FF),
-    secondary = NooshAccent,
-    onSecondary = Color(0xFF00354E),
-    background = Color(0xFF0F172A),
-    onBackground = Color(0xFFF1F5F9),
-    surface = Color(0xFF1E293B),
-    onSurface = Color(0xFFF1F5F9),
-    surfaceVariant = Color(0xFF334155),
-    onSurfaceVariant = Color(0xFFCBD5E1),
-    outline = Color(0xFF475569)
+private val DarkColorScheme = lightColorScheme(
+    primary = NooshPrimary,
+    onPrimary = Color.White,
+    primaryContainer = NooshSubtleBlue,
+    onPrimaryContainer = NooshPrimaryDark,
+    secondary = NooshPrimaryLight,
+    onSecondary = Color.White,
+    background = Color(0xFFE8F6FF),
+    onBackground = TextPrimary,
+    surface = Color.White,
+    onSurface = TextPrimary,
+    surfaceVariant = Color(0xFFDDF2FF),
+    onSurfaceVariant = TextSecondary,
+    outline = Color(0xFFBAE6FD)
 )
 
 @Composable

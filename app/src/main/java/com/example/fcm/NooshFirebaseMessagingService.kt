@@ -101,10 +101,10 @@ class NooshFirebaseMessagingService : FirebaseMessagingService() {
         }
 
         val message = when (eventType) {
-            HealthEventType.LONG_INACTIVITY -> "مدت زیادی است آبی ثبت نشده است ($currentWaterMl از $dailyGoalMl ml). لطفاً یادآوری کنید."
+            HealthEventType.LONG_INACTIVITY -> "مدت زیادی است آبی ثبت نشده است ($currentWaterMl از $dailyGoalMl میلی‌لیتر). لطفاً یادآوری کنید."
             HealthEventType.REMINDER_MISSED -> "کاربر یادآور اخیر را پاسخ نداده است ($percentage٪ از هدف امروز)."
             HealthEventType.GOAL_REACHED -> "کاربر با موفقیت به هدف $dailyGoalMl میلی‌لیتری امروز رسید!"
-            else -> "وضعیت فعلی آب: $currentWaterMl ml"
+            else -> "وضعیت فعلی آب: $currentWaterMl میلی‌لیتر"
         }
 
         val notification = NotificationCompat.Builder(context, channelId)

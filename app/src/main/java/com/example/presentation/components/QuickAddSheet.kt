@@ -108,7 +108,7 @@ fun QuickAddSheet(
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                         )
                         Text(
-                            text = "${DateTimeUtils.toPersianDigits(ml.toString())} ml",
+                            text = "${DateTimeUtils.toPersianDigits(ml.toString())} میلی‌لیتر",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
                             color = if (isSelected) NooshPrimary else Color(0xFF64748B)
