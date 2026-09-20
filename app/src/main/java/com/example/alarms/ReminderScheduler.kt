@@ -64,6 +64,27 @@ class ReminderScheduler(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        setAlarmSafely(triggerAtMillis, pendingIntent, "reminder ${reminder.id}")
+    }
+
+    fun scheduleRetryAlarm(reminderId: String, retryMinutes: Int = 15) {
+        val triggerAtMillis = System.currentTimeMillis() + (retryMinutes * 60 * 1000L)
+        val intent = Intent(context, ReminderReceiver::class.java).apply {
+            action = ReminderReceiver.ACTION_REMINDER_TRIGGERED
+            putExtra(ReminderReceiver.EXTRA_REMINDER_ID, reminderId)
+            putExtra(ReminderReceiver.EXTRA_IS_RETRY, true)
+        }
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            (reminderId + "_retry").hashCode(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        setAlarmSafely(triggerAtMillis, pendingIntent, "retry reminder $reminderId")
+    }
+
+    private fun setAlarmSafely(triggerAtMillis: Long, pendingIntent: PendingIntent, label: String) {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 if (alarmManager.canScheduleExactAlarms()) {
@@ -86,45 +107,26 @@ class ReminderScheduler(
                     pendingIntent
                 )
             } else {
-                alarmManager.setExact(
+                alarmManager.set(
                     AlarmManager.RTC_WAKEUP,
                     triggerAtMillis,
                     pendingIntent
                 )
             }
-            Log.d(TAG, "Successfully scheduled reminder ${reminder.id} at $triggerAtMillis")
+            Log.d(TAG, "Successfully scheduled $label at $triggerAtMillis")
         } catch (e: SecurityException) {
-            Log.w(TAG, "Exact alarm permission missing, falling back: ${e.message}")
-            alarmManager.set(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent)
-        }
-    }
-
-    fun scheduleRetryAlarm(reminderId: String, retryMinutes: Int = 15) {
-        val triggerAtMillis = System.currentTimeMillis() + (retryMinutes * 60 * 1000L)
-        val intent = Intent(context, ReminderReceiver::class.java).apply {
-            action = ReminderReceiver.ACTION_REMINDER_TRIGGERED
-            putExtra(ReminderReceiver.EXTRA_REMINDER_ID, reminderId)
-            putExtra(ReminderReceiver.EXTRA_IS_RETRY, true)
-        }
-        val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            (reminderId + "_retry").hashCode(),
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                alarmManager.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    triggerAtMillis,
-                    pendingIntent
-                )
-            } else {
-                alarmManager.set(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent)
+            Log.w(TAG, "Exact alarm permission missing for $label, falling back: ${e.message}")
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent)
+                } else {
+                    alarmManager.set(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent)
+                }
+            } catch (fallbackEx: Exception) {
+                Log.w(TAG, "Inexact fallback alarm failed: ${fallbackEx.message}")
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error setting retry alarm: ${e.message}")
+            Log.w(TAG, "Error setting alarm for $label: ${e.message}")
         }
     }
 
