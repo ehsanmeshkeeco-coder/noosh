@@ -1,0 +1,6 @@
+{
+  "name": "نوش",
+  "description": "اپلیکیشن هوشمند و مینیمال یادآوری نوشیدن آب، ثبت مصرف، تحلیل پیشرفت و همگام‌سازی سلامت",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

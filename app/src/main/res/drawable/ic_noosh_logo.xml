@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Outer water drop outline -->
+    <path
+        android:pathData="M 54,18 C 54,18 28,48 28,66 C 28,81 39.5,92 54,92 C 68.5,92 80,81 80,66 C 80,48 54,18 54,18 Z"
+        android:strokeWidth="5"
+        android:strokeColor="#2D9CFF"
+        android:fillColor="#00000000" />
+
+    <!-- Inner water fill with wave -->
+    <path
+        android:pathData="M 33,66 C 39,71 47,63 54,67 C 61,71 69,65 75,66 C 75,77 65.5,87 54,87 C 42.5,87 33,77 33,66 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="54"
+                android:startY="60"
+                android:endX="54"
+                android:endY="87"
+                android:type="linear">
+                <item android:color="#56B7FF" android:offset="0.0" />
+                <item android:color="#2D9CFF" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Reflection highlight -->
+    <path
+        android:pathData="M 39,73 C 38,76 42,81 47,82"
+        android:strokeWidth="2.2"
+        android:strokeColor="#8ED3FF"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+
+    <!-- Small Heart on the top right -->
+    <path
+        android:pathData="M 82,28 C 80,24 75,24 73,26.5 C 71,24 66,24 64,28 C 61.5,32.5 68.5,38.5 73,41.5 C 77.5,38.5 84.5,32.5 82,28 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="64"
+                android:startY="24"
+                android:endX="82"
+                android:endY="42"
+                android:type="linear">
+                <item android:color="#56B7FF" android:offset="0.0" />
+                <item android:color="#2D9CFF" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>
