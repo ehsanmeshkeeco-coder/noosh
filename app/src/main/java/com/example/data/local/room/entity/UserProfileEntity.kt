@@ -21,7 +21,12 @@ data class UserProfileEntity(
     val graceDayEnabled: Boolean = true,
     val soundEnabled: Boolean = true,
     val vibrateEnabled: Boolean = true,
-    val inactivityThresholdMinutes: Int = 120
+    val inactivityThresholdMinutes: Int = 120,
+    val weightKg: Float = 70f,
+    val heightCm: Float = 170f,
+    val age: Int = 25,
+    val gender: String = "male",
+    val onboardingCompleted: Boolean = false
 ) {
     fun toDomain(): UserProfile = UserProfile(
         id = id,
@@ -39,7 +44,12 @@ data class UserProfileEntity(
         graceDayEnabled = graceDayEnabled,
         soundEnabled = soundEnabled,
         vibrateEnabled = vibrateEnabled,
-        inactivityThresholdMinutes = inactivityThresholdMinutes
+        inactivityThresholdMinutes = inactivityThresholdMinutes,
+        weightKg = weightKg,
+        heightCm = heightCm,
+        age = age,
+        gender = gender,
+        onboardingCompleted = onboardingCompleted
     )
 
     companion object {
@@ -59,7 +69,13 @@ data class UserProfileEntity(
             graceDayEnabled = domain.graceDayEnabled,
             soundEnabled = domain.soundEnabled,
             vibrateEnabled = domain.vibrateEnabled,
-            inactivityThresholdMinutes = domain.inactivityThresholdMinutes
+            inactivityThresholdMinutes = domain.inactivityThresholdMinutes,
+            weightKg = domain.weightKg,
+            heightCm = domain.heightCm,
+            age = domain.age,
+            gender = domain.gender,
+            onboardingCompleted = domain.onboardingCompleted
         )
     }
 }
+

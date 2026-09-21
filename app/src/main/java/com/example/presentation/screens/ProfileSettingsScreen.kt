@@ -73,6 +73,7 @@ import com.example.presentation.viewmodel.MainViewModel
 fun ProfileSettingsScreen(
     viewModel: MainViewModel,
     onNavigateToAuth: () -> Unit,
+    onNavigateToOnboarding: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -226,7 +227,76 @@ fun ProfileSettingsScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // Biometric Profile & Calculation Card
+            Card(
+                shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                text = "مشخصات زیستی و بدنی",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF0F172A)
+                            )
+                            Text(
+                                text = "قد، وزن، سن و محاسبه هوشمند",
+                                fontSize = 11.sp,
+                                color = Color(0xFF64748B)
+                            )
+                        }
+
+                        Button(
+                            onClick = onNavigateToOnboarding,
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = NooshPrimary)
+                        ) {
+                            Text("تنظیم مجدد ویزارد", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceAround
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("وزن", fontSize = 11.sp, color = Color(0xFF94A3B8))
+                            Text("${profile?.weightKg?.toInt() ?: 70} kg", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("قد", fontSize = 11.sp, color = Color(0xFF94A3B8))
+                            Text("${profile?.heightCm?.toInt() ?: 170} cm", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("سن", fontSize = 11.sp, color = Color(0xFF94A3B8))
+                            Text("${profile?.age ?: 25} سال", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+                        }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("جنسیت", fontSize = 11.sp, color = Color(0xFF94A3B8))
+                            val genderLabel = if (profile?.gender == "female") "خانم" else "آقا"
+                            Text(genderLabel, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
 
             // Daily Water Goal Card
             Card(

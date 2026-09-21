@@ -166,6 +166,18 @@ class MainViewModel(
         sendTestNotification(context)
     }
 
+    fun triggerTestAlarmService(context: android.content.Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val profile = userRepository.getUserProfile()
+            com.example.alarms.WaterAlarmRingingService.start(
+                context = context.applicationContext,
+                reminderId = "test_alarm_${System.currentTimeMillis()}",
+                personName = profile.name,
+                amountMl = 250
+            )
+        }
+    }
+
     fun updateProfileSettings(
         name: String,
         dailyGoalMl: Int,
@@ -343,6 +355,64 @@ class MainViewModel(
             if (remoteUrl != null) {
                 userRepository.updateProfile(profile.copy(profileImageUrl = remoteUrl))
             }
+        }
+    }
+
+    fun saveOnboardingProfile(
+        name: String,
+        weightKg: Float,
+        heightCm: Float,
+        age: Int,
+        gender: String,
+        avatarBytes: ByteArray? = null,
+        avatarUri: String? = null
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val current = userRepository.getUserProfile()
+            val calculation = com.example.domain.usecase.WaterCalculationAlgorithm.calculateDailyGoal(
+                weightKg = weightKg,
+                heightCm = heightCm,
+                age = age,
+                gender = gender,
+                wakeUpTime = current.wakeUpTime,
+                sleepTime = current.sleepTime
+            )
+
+            var photoUrl = current.profileImageUrl
+            if (avatarUri != null) {
+                photoUrl = avatarUri
+            }
+            if (avatarBytes != null) {
+                val remoteUrl = supabaseClient?.uploadAvatar(current.id, avatarBytes)
+                if (remoteUrl != null) {
+                    photoUrl = remoteUrl
+                }
+            }
+
+            val updated = current.copy(
+                name = name.ifBlank { current.name },
+                weightKg = weightKg,
+                heightCm = heightCm,
+                age = age,
+                gender = gender,
+                dailyWaterGoalMl = calculation.dailyWaterGoalMl,
+                reminderIntervalMinutes = calculation.recommendedIntervalMinutes,
+                profileImageUrl = photoUrl,
+                onboardingCompleted = true,
+                updatedAt = System.currentTimeMillis()
+            )
+            userRepository.updateProfile(updated)
+
+            // Reschedule reminders according to the newly calculated interval
+            reminderRepository.scheduleDailyReminders(updated)
+            reminderScheduler.scheduleNextPendingReminder()
+        }
+    }
+
+    fun stallReminder(reminderId: String, reason: String = "مشغله") {
+        viewModelScope.launch(Dispatchers.IO) {
+            reminderRepository.stallReminder(reminderId, reason, delayMinutes = 15)
+            reminderScheduler.scheduleNextPendingReminder()
         }
     }
 

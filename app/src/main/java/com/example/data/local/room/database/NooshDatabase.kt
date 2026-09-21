@@ -33,7 +33,7 @@ import kotlinx.coroutines.launch
         HealthCompanionEntity::class,
         SyncOutboxEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class NooshDatabase : RoomDatabase() {

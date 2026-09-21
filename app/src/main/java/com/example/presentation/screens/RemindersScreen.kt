@@ -387,10 +387,41 @@ fun RemindersScreen(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "ارسال اعلان تست جهت بررسی دکمه «یک لیوان آب خوردم»",
+                    text = "ارسال اعلان تست (نوتیفیکیشن عادی)",
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     color = NooshPrimary
+                )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Test Fullscreen Alarm Clock Ringing Button
+            Button(
+                onClick = {
+                    viewModel.triggerTestAlarmService(context)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp)
+                    .testTag("btn_test_ringing_alarm"),
+                shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF0284C7)
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Alarm,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "تست زنگ هشدار پیوسته و صفحه تمام‌صفحه ⏰",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
                 )
             }
 

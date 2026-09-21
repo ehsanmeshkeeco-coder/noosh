@@ -50,7 +50,12 @@ data class UserProfile(
     val graceDayEnabled: Boolean = true,
     val soundEnabled: Boolean = true,
     val vibrateEnabled: Boolean = true,
-    val inactivityThresholdMinutes: Int = 120
+    val inactivityThresholdMinutes: Int = 120,
+    val weightKg: Float = 70f,
+    val heightCm: Float = 170f,
+    val age: Int = 25,
+    val gender: String = "male",
+    val onboardingCompleted: Boolean = false
 )
 
 data class DailySummary(

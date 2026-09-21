@@ -78,6 +78,28 @@ class ReminderRepositoryImpl(
         reminderDao.updateReminder(updated)
     }
 
+    override suspend fun stallReminder(id: String, reason: String, delayMinutes: Int) {
+        val reminder = reminderDao.getReminderById(id) ?: return
+        val now = System.currentTimeMillis()
+        val delayedTime = now + (delayMinutes * 60 * 1000L)
+        // Mark current reminder as SNOOZED with delayed time
+        val updatedCurrent = reminder.copy(
+            status = ReminderStatus.SNOOZED.name,
+            retryCount = reminder.retryCount + 1,
+            nextReminderAt = delayedTime
+        )
+        reminderDao.updateReminder(updatedCurrent)
+
+        // Find the next upcoming reminder to compensate amount
+        val nextUpcoming = reminderDao.getNextUpcomingReminder(now)
+        if (nextUpcoming != null && nextUpcoming.id != id) {
+            val compensated = nextUpcoming.copy(
+                amountMl = nextUpcoming.amountMl + reminder.amountMl
+            )
+            reminderDao.updateReminder(compensated)
+        }
+    }
+
     override suspend fun scheduleDailyReminders(profile: UserProfile) {
         if (!profile.reminderEnabled) {
             reminderDao.deletePendingRemindersAfter(System.currentTimeMillis())

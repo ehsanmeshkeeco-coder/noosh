@@ -40,6 +40,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -59,7 +62,9 @@ import com.example.presentation.viewmodel.MainViewModel
 @Composable
 fun DashboardScreen(
     viewModel: MainViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onProgressRingPositioned: ((Rect) -> Unit)? = null,
+    onQuickAddPositioned: ((Rect) -> Unit)? = null
 ) {
     val dashboardState by viewModel.dashboardState.collectAsState()
     val celebrationEvent by viewModel.celebrationEvent.collectAsState()
@@ -125,12 +130,18 @@ fun DashboardScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Main Circular Water Progress with wave
-                CircularWaterProgress(
-                    percentage = state?.percentage ?: 0,
-                    consumedMl = state?.totalConsumedMl ?: 0,
-                    goalMl = state?.goalMl ?: 2000,
-                    size = 230.dp
-                )
+                Box(
+                    modifier = Modifier.onGloballyPositioned { coordinates ->
+                        onProgressRingPositioned?.invoke(coordinates.boundsInRoot())
+                    }
+                ) {
+                    CircularWaterProgress(
+                        percentage = state?.percentage ?: 0,
+                        consumedMl = state?.totalConsumedMl ?: 0,
+                        goalMl = state?.goalMl ?: 2000,
+                        size = 230.dp
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
@@ -214,7 +225,11 @@ fun DashboardScreen(
 
                 // Action Buttons
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onGloballyPositioned { coordinates ->
+                            onQuickAddPositioned?.invoke(coordinates.boundsInRoot())
+                        },
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Button(

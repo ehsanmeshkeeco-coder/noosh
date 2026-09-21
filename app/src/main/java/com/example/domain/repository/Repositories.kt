@@ -50,6 +50,7 @@ interface ReminderRepository {
     suspend fun updateReminderStatus(id: String, status: ReminderStatus, completedAt: Long? = null)
     suspend fun completeReminder(id: String, amountMl: Int = 250)
     suspend fun snoozeReminder(id: String, snoozeMinutes: Int = 15)
+    suspend fun stallReminder(id: String, reason: String, delayMinutes: Int = 15)
     suspend fun scheduleDailyReminders(profile: UserProfile)
     suspend fun insertReminder(reminder: Reminder)
 }

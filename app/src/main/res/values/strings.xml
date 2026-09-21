@@ -85,4 +85,15 @@
     <string name="companion_pause_alerts">توقف موقت ارسال هشدارها</string>
     <string name="companion_resume_alerts">ادامه ارسال هشدارها</string>
     <string name="companion_event_log">تاریخچه رویدادها و هشدارها</string>
+    <string name="notification_action_stall">به تعویق انداختن (استال)</string>
+    <string name="notification_action_drink_now">همین الان می‌نوشم</string>
+    <string name="notification_urgent_title">⚠️ یادآوری فوری نوشیدن آب</string>
+    <string name="notification_urgent_body">%1$s عزیز، ۱۵ دقیقه گذشته و آب ننوشیده‌ای! لطفاً برای حفظ سلامت بنوش یا به تعویق بینداز.</string>
+    <string name="onboarding_title">راه‌اندازی برنامه نوشیدن آب</string>
+    <string name="onboarding_step_name_photo">مشخصات اولیه</string>
+    <string name="onboarding_step_biometrics">قد، وزن و سن</string>
+    <string name="onboarding_step_result">محاسبه هوشمند نیاز آب بدن</string>
+    <string name="tour_next">متوجه شدم، بعدی</string>
+    <string name="tour_finish">شروع نوشیدن آب 💧</string>
+    <string name="tour_skip">رد شدن از تور</string>
 </resources>

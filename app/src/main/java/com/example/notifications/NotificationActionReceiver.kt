@@ -18,8 +18,9 @@ class NotificationActionReceiver : BroadcastReceiver() {
             val reminderId = intent.getStringExtra(NotificationHelper.EXTRA_REMINDER_ID)
             val amountMl = intent.getIntExtra(NotificationHelper.EXTRA_AMOUNT_ML, 250)
 
-            // Dismiss notification immediately
+            // Dismiss notification and stop ringing alarm service immediately
             NotificationHelper.cancelNotification(context)
+            com.example.alarms.WaterAlarmRingingService.stop(context)
 
             val app = context.applicationContext as? NooshApplication
             if (app != null) {
@@ -42,6 +43,43 @@ class NotificationActionReceiver : BroadcastReceiver() {
                                 context,
                                 context.getString(R.string.congratulations_subtitle),
                                 Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    } finally {
+                        pendingResult.finish()
+                    }
+                }
+            } else {
+                pendingResult.finish()
+            }
+        } else if (intent.action == NotificationHelper.ACTION_STALL_REMINDER) {
+            val pendingResult = goAsync()
+            val reminderId = intent.getStringExtra(NotificationHelper.EXTRA_REMINDER_ID) ?: ""
+            val stallReason = intent.getStringExtra(NotificationHelper.EXTRA_STALL_REASON) ?: "مشغله"
+
+            // Dismiss ringing notification and stop service
+            NotificationHelper.cancelNotification(context)
+            com.example.alarms.WaterAlarmRingingService.stop(context)
+
+            val app = context.applicationContext as? NooshApplication
+            if (app != null) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        if (reminderId.isNotBlank()) {
+                            app.reminderRepository.stallReminder(
+                                id = reminderId,
+                                reason = stallReason,
+                                delayMinutes = 15
+                            )
+                        }
+                        // Reschedule next alarm
+                        app.reminderScheduler.scheduleNextPendingReminder()
+
+                        launch(Dispatchers.Main) {
+                            Toast.makeText(
+                                context,
+                                "یادآور ۱۵ دقیقه به تعویق افتاد و در نوبت بعدی جبران خواهد شد.",
+                                Toast.LENGTH_LONG
                             ).show()
                         }
                     } finally {

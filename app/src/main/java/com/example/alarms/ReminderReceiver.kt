@@ -31,45 +31,48 @@ class ReminderReceiver : BroadcastReceiver() {
                             return@launch
                         }
 
-                        // Show notification
-                        NotificationHelper.showWaterReminderNotification(
-                            context = context,
-                            personName = profile.name,
-                            reminderId = reminderId,
-                            amountMl = amountMl,
-                            soundEnabled = profile.soundEnabled,
-                            vibrateEnabled = profile.vibrateEnabled
-                        )
-
-                        // Update status to NOTIFIED
-                        app.reminderRepository.updateReminderStatus(
-                            id = reminderId,
-                            status = ReminderStatus.NOTIFIED,
-                            completedAt = null
-                        )
-
                         // If not retry, record REMINDER_TRIGGERED and schedule 15-minute retry check
                         if (!isRetry) {
+                            // First reminder: Normal notification with sound and vibration
+                            NotificationHelper.showWaterReminderNotification(
+                                context = context,
+                                personName = profile.name,
+                                reminderId = reminderId,
+                                amountMl = amountMl,
+                                soundEnabled = profile.soundEnabled,
+                                vibrateEnabled = profile.vibrateEnabled
+                            )
+
+                            // Update status to NOTIFIED
+                            app.reminderRepository.updateReminderStatus(
+                                id = reminderId,
+                                status = ReminderStatus.NOTIFIED,
+                                completedAt = null
+                            )
+
                             app.healthCompanionManager.recordAndDispatchEvent(
                                 eventType = com.example.domain.model.HealthEventType.REMINDER_TRIGGERED,
                                 severity = com.example.domain.model.AlertSeverity.LOW
                             )
                             app.reminderScheduler.scheduleRetryAlarm(reminderId, retryMinutes = 15)
                         } else {
-                            // After 15 minutes retry, if user still didn't drink, mark MISSED
+                            // 15 minutes passed: Check if user hasn't consumed water yet
                             val currentReminder = app.reminderRepository.getReminderById(reminderId)
-                            if (currentReminder?.status == ReminderStatus.NOTIFIED) {
-                                app.reminderRepository.updateReminderStatus(
-                                    id = reminderId,
-                                    status = ReminderStatus.MISSED,
-                                    completedAt = null
+                            if (currentReminder != null && (currentReminder.status == ReminderStatus.NOTIFIED || currentReminder.status == ReminderStatus.PENDING)) {
+                                // Start active ringing loop (audio + vibration) and show full screen alarm UI
+                                WaterAlarmRingingService.start(
+                                    context = context,
+                                    reminderId = reminderId,
+                                    personName = profile.name,
+                                    amountMl = amountMl
                                 )
+
                                 app.healthCompanionManager.recordAndDispatchEvent(
                                     eventType = com.example.domain.model.HealthEventType.REMINDER_MISSED,
                                     severity = com.example.domain.model.AlertSeverity.MEDIUM,
                                     missedReminderCount = 1
                                 )
-                                // Section 49 & 56: Check if user has long inactivity
+                                // Check if user has long inactivity
                                 app.healthCompanionManager.checkAndTriggerInactivity()
                             }
                             // Schedule next normal pending reminder

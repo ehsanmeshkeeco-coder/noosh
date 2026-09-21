@@ -69,6 +69,13 @@ sealed class Screen(
         selectedIcon = Icons.Filled.Person,
         unselectedIcon = Icons.Outlined.Person
     )
+
+    object Onboarding : Screen(
+        route = "onboarding",
+        titleResId = com.example.R.string.onboarding_title,
+        selectedIcon = Icons.Filled.Person,
+        unselectedIcon = Icons.Outlined.Person
+    )
 }
 
 val BottomNavScreens = listOf(
