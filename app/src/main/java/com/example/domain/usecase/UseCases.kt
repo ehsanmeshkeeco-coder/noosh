@@ -1,5 +1,6 @@
 package com.example.domain.usecase
 
+import com.clerk.android.Clerk
 import com.example.domain.companion.HealthCompanionManager
 import com.example.domain.model.AlertSeverity
 import com.example.domain.model.HealthEventType

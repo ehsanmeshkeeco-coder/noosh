@@ -20,12 +20,16 @@ sealed class AuthState {
     object Unauthenticated : AuthState()
 }
 
-class ClerkAuthManager(private val context: Context) {
+class ClerkAuthManager(
+    private val context: Context,
+    private val publishableKey: String = com.example.BuildConfig.CLERK_PUBLISHABLE_KEY
+) {
 
     init {
-        val key = com.example.BuildConfig.CLERK_PUBLISHABLE_KEY
-        require(key.isNotEmpty()) { "CLERK_PUBLISHABLE_KEY is empty. Set it in GitHub Actions secrets or .env before build." }
-        Clerk.configure(context.applicationContext, key)
+        val key = publishableKey.ifBlank { com.example.BuildConfig.CLERK_PUBLISHABLE_KEY }
+        if (key.isNotBlank()) {
+            Clerk.configure(context.applicationContext, key)
+        }
     }
 
     private val prefs = context.getSharedPreferences("clerk_auth_prefs", Context.MODE_PRIVATE)
@@ -57,6 +61,14 @@ class ClerkAuthManager(private val context: Context) {
                     email = prefs.getString("email", "user@noosh.app") ?: "user@noosh.app",
                     avatarUrl = prefs.getString("avatar_url", null),
                     isGuest = prefs.getBoolean("is_guest", false)
+                )
+                Clerk.setUser(
+                    Clerk.User(
+                        id = user.id,
+                        firstName = user.firstName,
+                        email = user.email,
+                        avatarUrl = user.avatarUrl
+                    )
                 )
                 _authState.value = AuthState.Authenticated(user)
             } else {
@@ -96,6 +108,14 @@ class ClerkAuthManager(private val context: Context) {
     }
 
     private fun saveUser(user: ClerkUser) {
+        Clerk.setUser(
+            Clerk.User(
+                id = user.id,
+                firstName = user.firstName,
+                email = user.email,
+                avatarUrl = user.avatarUrl
+            )
+        )
         prefs.edit()
             .putString("user_id", user.id)
             .putString("first_name", user.firstName)
