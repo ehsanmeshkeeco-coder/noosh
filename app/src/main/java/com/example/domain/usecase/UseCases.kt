@@ -103,8 +103,8 @@ class GetDashboardDataUseCase(
         ) { profileOrNull, totalMl, intakes, nextReminder ->
             val profile = profileOrNull ?: UserProfile(
                 id = "default_user",
-                clerkUserId = null,
-                name = "کاربر گرامی",
+                clerkUserId = Clerk.getUser()?.id ?: "",
+                name = Clerk.getUser()?.firstName ?: "کاربر گرامی",
                 email = "user@noosh.app",
                 profileImageUrl = null,
                 dailyWaterGoalMl = 2000,

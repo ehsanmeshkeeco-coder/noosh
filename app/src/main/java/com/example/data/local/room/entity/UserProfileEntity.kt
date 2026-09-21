@@ -7,7 +7,7 @@ import com.example.domain.model.UserProfile
 @Entity(tableName = "user_profiles")
 data class UserProfileEntity(
     @PrimaryKey val id: String = "default_user",
-    val clerkUserId: String? = null,
+    val clerkUserId: String = com.clerk.android.Clerk.getUser()?.id ?: "",
     val name: String = "کاربر گرامی",
     val email: String = "user@example.com",
     val profileImageUrl: String? = null,

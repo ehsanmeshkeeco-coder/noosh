@@ -35,6 +35,7 @@ if (!releaseKeystoreFile.exists() && releaseKeystoreBase64File.exists()) {
 
 android {
   namespace = "com.example"
+  val clerkKey = System.getenv("CLERK_PUBLISHABLE_KEY") ?: (project.findProperty("CLERK_PUBLISHABLE_KEY") as? String) ?: ""
   compileSdk { version = release(36) { minorApiLevel = 1 } }
 
   defaultConfig {
@@ -45,6 +46,7 @@ android {
     versionName = "1.0"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    buildConfigField("String", "CLERK_PUBLISHABLE_KEY", "\"" + clerkKey + "\"")
   }
 
   signingConfigs {
@@ -132,6 +134,7 @@ dependencies {
   implementation(libs.androidx.navigation.compose)
   implementation(libs.androidx.room.ktx)
   implementation(libs.androidx.room.runtime)
+  implementation(libs.clerk.sdk)
   implementation(libs.androidx.work.runtime.ktx)
   implementation(libs.coil.compose)
   implementation(libs.converter.moshi)

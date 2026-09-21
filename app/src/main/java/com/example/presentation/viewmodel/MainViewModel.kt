@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.alarms.ReminderScheduler
 import com.example.data.remote.clerk.AuthState
 import com.example.data.remote.clerk.ClerkAuthManager
+import com.clerk.android.Clerk
 import com.example.domain.companion.HealthCompanionManager
 import com.example.domain.model.AlertFilterPolicy
 import com.example.domain.model.AlertSeverity
@@ -297,7 +298,7 @@ class MainViewModel(
         clerkAuthManager.signInWithEmail(email, name)
         viewModelScope.launch(Dispatchers.IO) {
             val profile = userRepository.getUserProfile()
-            val updated = profile.copy(name = name, email = email, clerkUserId = "user_${email.hashCode()}")
+            val updated = profile.copy(name = name, email = email, clerkUserId = Clerk.getUser()?.id ?: "")
             userRepository.updateProfile(updated)
             fcmTokenManager?.onUserLogin(updated.id)
         }

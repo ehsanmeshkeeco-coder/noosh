@@ -1,7 +1,7 @@
 package com.example.data.remote.clerk
 
 import android.content.Context
-import android.content.SharedPreferences
+import com.clerk.android.Clerk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,13 +20,15 @@ sealed class AuthState {
     object Unauthenticated : AuthState()
 }
 
-class ClerkAuthManager(
-    context: Context,
-    val publishableKey: String = ""
-) {
-    private val prefs: SharedPreferences =
-        context.getSharedPreferences("clerk_auth_prefs", Context.MODE_PRIVATE)
+class ClerkAuthManager(private val context: Context) {
 
+    init {
+        val key = com.example.BuildConfig.CLERK_PUBLISHABLE_KEY
+        require(key.isNotEmpty()) { "CLERK_PUBLISHABLE_KEY is empty. Set it in GitHub Actions secrets or .env before build." }
+        Clerk.configure(context.applicationContext, key)
+    }
+
+    private val prefs = context.getSharedPreferences("clerk_auth_prefs", Context.MODE_PRIVATE)
     private val _authState = MutableStateFlow<AuthState>(AuthState.Loading)
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
@@ -35,27 +37,40 @@ class ClerkAuthManager(
     }
 
     private fun checkInitialSession() {
-        val savedUserId = prefs.getString("user_id", null)
-        if (savedUserId != null) {
+        val current = Clerk.getUser()
+        if (current != null) {
             val user = ClerkUser(
-                id = savedUserId,
-                firstName = prefs.getString("first_name", "کاربر نوش") ?: "کاربر نوش",
-                email = prefs.getString("email", "user@noosh.app") ?: "user@noosh.app",
-                avatarUrl = prefs.getString("avatar_url", null),
-                isGuest = prefs.getBoolean("is_guest", false)
+                id = current.id,
+                firstName = current.firstName ?: "کاربر نوش",
+                email = current.email ?: "user@noosh.app",
+                avatarUrl = current.avatarUrl,
+                isGuest = false
             )
+            saveUser(user)
             _authState.value = AuthState.Authenticated(user)
         } else {
-            _authState.value = AuthState.Unauthenticated
+            val savedUserId = prefs.getString("user_id", null)
+            if (savedUserId != null) {
+                val user = ClerkUser(
+                    id = savedUserId,
+                    firstName = prefs.getString("first_name", "کاربر نوش") ?: "کاربر نوش",
+                    email = prefs.getString("email", "user@noosh.app") ?: "user@noosh.app",
+                    avatarUrl = prefs.getString("avatar_url", null),
+                    isGuest = prefs.getBoolean("is_guest", false)
+                )
+                _authState.value = AuthState.Authenticated(user)
+            } else {
+                _authState.value = AuthState.Unauthenticated
+            }
         }
     }
 
     fun signInWithEmail(email: String, name: String) {
         val user = ClerkUser(
-            id = "user_${email.hashCode()}",
+            id = Clerk.getUser()?.id ?: "user_${email.hashCode()}",
             firstName = name.ifBlank { "کاربر نوش" },
             email = email,
-            avatarUrl = null,
+            avatarUrl = Clerk.getUser()?.avatarUrl,
             isGuest = false
         )
         saveUser(user)
@@ -64,7 +79,7 @@ class ClerkAuthManager(
 
     fun continueAsGuest() {
         val user = ClerkUser(
-            id = "default_user",
+            id = "guest_" + System.currentTimeMillis(),
             firstName = "کاربر مهمان",
             email = "guest@noosh.app",
             avatarUrl = null,
@@ -75,6 +90,7 @@ class ClerkAuthManager(
     }
 
     fun signOut() {
+        Clerk.signOut()
         prefs.edit().clear().apply()
         _authState.value = AuthState.Unauthenticated
     }

@@ -1,5 +1,7 @@
 package com.example.domain.model
 
+import com.clerk.android.Clerk
+
 enum class ReminderStatus {
     PENDING,
     NOTIFIED,
@@ -34,7 +36,7 @@ data class WaterIntake(
 
 data class UserProfile(
     val id: String = "default_user",
-    val clerkUserId: String? = null,
+    val clerkUserId: String = Clerk.getUser()?.id ?: "",
     val name: String = "کاربر گرامی",
     val email: String = "",
     val profileImageUrl: String? = null,
