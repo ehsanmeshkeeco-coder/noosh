@@ -1,18 +1,22 @@
 package com.example.presentation.navigation
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ShowChart
+import androidx.compose.material.icons.automirrored.outlined.ShowChart
 import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ShowChart
 import androidx.compose.material.icons.outlined.Alarm
 import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.ShowChart
 import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class Screen(
@@ -75,6 +79,13 @@ sealed class Screen(
         titleResId = com.example.R.string.onboarding_title,
         selectedIcon = Icons.Filled.Person,
         unselectedIcon = Icons.Outlined.Person
+    )
+
+    object RechartsTrend : Screen(
+        route = "recharts_trend",
+        titleResId = com.example.R.string.recharts_trend_title,
+        selectedIcon = Icons.AutoMirrored.Filled.ShowChart,
+        unselectedIcon = Icons.AutoMirrored.Outlined.ShowChart
     )
 }
 

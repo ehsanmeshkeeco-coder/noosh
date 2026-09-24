@@ -26,6 +26,8 @@ data class UserProfileEntity(
     val heightCm: Float = 170f,
     val age: Int = 25,
     val gender: String = "male",
+    val activityLevel: String = "moderate",
+    val climate: String = "temperate",
     val onboardingCompleted: Boolean = false
 ) {
     fun toDomain(): UserProfile = UserProfile(
@@ -49,6 +51,8 @@ data class UserProfileEntity(
         heightCm = heightCm,
         age = age,
         gender = gender,
+        activityLevel = activityLevel,
+        climate = climate,
         onboardingCompleted = onboardingCompleted
     )
 
@@ -74,6 +78,8 @@ data class UserProfileEntity(
             heightCm = domain.heightCm,
             age = domain.age,
             gender = domain.gender,
+            activityLevel = domain.activityLevel,
+            climate = domain.climate,
             onboardingCompleted = domain.onboardingCompleted
         )
     }

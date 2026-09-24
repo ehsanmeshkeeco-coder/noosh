@@ -36,6 +36,9 @@ if (!releaseKeystoreFile.exists() && releaseKeystoreBase64File.exists()) {
 android {
   namespace = "com.example"
   val clerkKey = System.getenv("CLERK_PUBLISHABLE_KEY") ?: (project.findProperty("CLERK_PUBLISHABLE_KEY") as? String) ?: ""
+  val supabaseUrl = System.getenv("SUPABASE_URL") ?: (project.findProperty("SUPABASE_URL") as? String) ?: ""
+  val supabaseAnonKey = System.getenv("SUPABASE_ANON_KEY") ?: (project.findProperty("SUPABASE_ANON_KEY") as? String) ?: ""
+  val supabaseServiceKey = System.getenv("SUPABASE_SERVICE_ROLE_KEY") ?: (project.findProperty("SUPABASE_SERVICE_ROLE_KEY") as? String) ?: ""
   compileSdk { version = release(36) { minorApiLevel = 1 } }
 
   defaultConfig {
@@ -47,6 +50,9 @@ android {
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     buildConfigField("String", "CLERK_PUBLISHABLE_KEY", "\"" + clerkKey + "\"")
+    buildConfigField("String", "SUPABASE_URL", "\"" + supabaseUrl + "\"")
+    buildConfigField("String", "SUPABASE_ANON_KEY", "\"" + supabaseAnonKey + "\"")
+    buildConfigField("String", "SUPABASE_SERVICE_ROLE_KEY", "\"" + supabaseServiceKey + "\"")
   }
 
   signingConfigs {

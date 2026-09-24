@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>نمودار هفتگی مصرف آب Recharts</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background: #F8FAFC;
+      color: #0F172A;
+      padding: 12px;
+      overflow-x: hidden;
+      user-select: none;
+    }
+    .chart-container {
+      background: #FFFFFF;
+      border-radius: 20px;
+      padding: 16px 14px;
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+      border: 1px solid #E2E8F0;
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .chart-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #0369A1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .chart-subtitle {
+      font-size: 11px;
+      color: #64748B;
+      font-weight: 500;
+    }
+    .type-switcher {
+      display: flex;
+      gap: 4px;
+      background: #F1F5F9;
+      padding: 3px;
+      border-radius: 12px;
+      margin-bottom: 14px;
+    }
+    .switch-btn {
+      flex: 1;
+      padding: 6px 0;
+      font-size: 11px;
+      font-weight: 600;
+      border: none;
+      background: transparent;
+      color: #64748B;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+    .switch-btn.active {
+      background: #0284C7;
+      color: #FFFFFF;
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+    }
+    .svg-canvas-wrapper {
+      position: relative;
+      width: 100%;
+      height: 220px;
+    }
+    svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+    .grid-line {
+      stroke: #E2E8F0;
+      stroke-dasharray: 4 4;
+      stroke-width: 1;
+    }
+    .goal-line {
+      stroke: #10B981;
+      stroke-dasharray: 5 4;
+      stroke-width: 2;
+    }
+    .axis-label {
+      font-size: 10px;
+      fill: #64748B;
+      text-anchor: middle;
+      font-weight: 500;
+    }
+    .tooltip {
+      position: absolute;
+      background: #0F172A;
+      color: #FFFFFF;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 11px;
+      line-height: 1.4;
+      pointer-events: none;
+      transform: translate(-50%, -100%);
+      transition: opacity 0.15s ease, transform 0.15s ease;
+      opacity: 0;
+      box-shadow: 0 8px 16px rgba(15, 23, 42, 0.25);
+      z-index: 100;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .tooltip.visible {
+      opacity: 1;
+    }
+    .legend-row {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 14px;
+      padding-top: 10px;
+      border-top: 1px solid #F1F5F9;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: #475569;
+      font-weight: 600;
+    }
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="chart-container">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">
+          <span>💧</span> روند هفتگی مصرف آب
+        </div>
+        <div class="chart-subtitle">تحلیل پیوسته ۷ روز گذشته با موتور Recharts</div>
+      </div>
+      <div id="goal-badge" style="font-size: 11px; background: #E0F2FE; color: #0284C7; padding: 4px 10px; border-radius: 20px; font-weight: 700;">
+        هدف: ۲۰۰۰ میلی‌لیتر
+      </div>
+    </div>
+
+    <!-- Chart Type Switcher -->
+    <div class="type-switcher">
+      <button class="switch-btn active" onclick="setChartType('line')">نمودار خطی تمیز (Line Chart)</button>
+      <button class="switch-btn" onclick="setChartType('area')">موجی پیوسته (Area)</button>
+      <button class="switch-btn" onclick="setChartType('bar')">میله‌ای مقایسه‌ای (Bar)</button>
+    </div>
+
+    <!-- Chart Canvas -->
+    <div class="svg-canvas-wrapper" id="canvas-wrapper">
+      <div id="tooltip" class="tooltip"></div>
+      <svg id="chart-svg" viewBox="0 0 340 220" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0284C7" stop-opacity="0.45"/>
+            <stop offset="100%" stop-color="#0284C7" stop-opacity="0.02"/>
+          </linearGradient>
+          <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#38BDF8"/>
+            <stop offset="100%" stop-color="#0284C7"/>
+          </linearGradient>
+          <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#0284C7" flood-opacity="0.3"/>
+          </filter>
+        </defs>
+        <!-- Dynamic content injected by JS -->
+        <g id="chart-content"></g>
+      </svg>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend-row">
+      <div class="legend-item">
+        <div class="legend-dot" style="background: #0284C7;"></div>
+        <span>آب مصرفی (میلی‌لیتر)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background: #10B981;"></div>
+        <span>آستانه هدف روزانه</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentType = 'line';
+    let rawData = [
+      { dayName: "ش", fullDate: "شنبه", amountMl: 1750, isToday: false },
+      { dayName: "ی", fullDate: "یکشنبه", amountMl: 2100, isToday: false },
+      { dayName: "د", fullDate: "دوشنبه", amountMl: 1950, isToday: false },
+      { dayName: "س", fullDate: "سه‌شنبه", amountMl: 2350, isToday: false },
+      { dayName: "چ", fullDate: "چهارشنبه", amountMl: 2200, isToday: false },
+      { dayName: "پ", fullDate: "پنج‌شنبه", amountMl: 1800, isToday: false },
+      { dayName: "ج", fullDate: "جمعه (امروز)", amountMl: 2250, isToday: true }
+    ];
+    let dailyGoalMl = 2000;
+
+    function toPersianDigits(n) {
+      const f = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+      return n.toString().replace(/[0-9]/g, w => f[+w]);
+    }
+
+    function setChartType(type) {
+      currentType = type;
+      document.querySelectorAll('.switch-btn').forEach(btn => btn.classList.remove('active'));
+      const activeIdx = type === 'line' ? 0 : (type === 'area' ? 1 : 2);
+      document.querySelectorAll('.switch-btn')[activeIdx].classList.add('active');
+      renderChart();
+    }
+
+    function renderChart() {
+      const container = document.getElementById('chart-content');
+      if (!container) return;
+
+      const width = 340;
+      const height = 220;
+      const padLeft = 32;
+      const padRight = 16;
+      const padTop = 20;
+      const padBottom = 34;
+
+      const plotWidth = width - padLeft - padRight;
+      const plotHeight = height - padTop - padBottom;
+
+      const maxVal = Math.max(dailyGoalMl, ...rawData.map(d => d.amountMl), 2500);
+
+      // Y Scale calculation
+      const getY = val => padTop + plotHeight - ((val / maxVal) * plotHeight);
+      const goalY = getY(dailyGoalMl);
+
+      let html = '';
+
+      // Background grid lines
+      const gridSteps = [0, 1000, dailyGoalMl, maxVal];
+      [1000, dailyGoalMl].forEach(val => {
+        const y = getY(val);
+        const isGoal = val === dailyGoalMl;
+        html += `<line x1="${padLeft}" y1="${y}" x2="${width - padRight}" y2="${y}" class="${isGoal ? 'goal-line' : 'grid-line'}" />`;
+        html += `<text x="${padLeft - 6}" y="${y + 3}" font-size="9" fill="${isGoal ? '#10B981' : '#94A3B8'}" text-anchor="end" font-weight="${isGoal ? '700' : '400'}">${toPersianDigits(val)}</text>`;
+      });
+
+      // Goal target text
+      html += `<text x="${width - padRight}" y="${goalY - 6}" font-size="9" fill="#10B981" font-weight="700" text-anchor="end">خط هدف (${toPersianDigits(dailyGoalMl)})</text>`;
+
+      const count = rawData.length;
+      const stepX = plotWidth / (count - 1 || 1);
+
+      const points = rawData.map((d, i) => {
+        const x = padLeft + (i * stepX);
+        const y = getY(d.amountMl);
+        return { x, y, data: d };
+      });
+
+      if (currentType === 'area') {
+        // Area path
+        let pathD = `M ${points[0].x} ${points[0].y}`;
+        for (let i = 0; i < points.length - 1; i++) {
+          const p0 = points[i];
+          const p1 = points[i + 1];
+          const cx = (p0.x + p1.x) / 2;
+          pathD += ` C ${cx} ${p0.y}, ${cx} ${p1.y}, ${p1.x} ${p1.y}`;
+        }
+        const areaD = `${pathD} L ${points[points.length - 1].x} ${padTop + plotHeight} L ${points[0].x} ${padTop + plotHeight} Z`;
+
+        html += `<path d="${areaD}" fill="url(#areaGradient)" />`;
+        html += `<path d="${pathD}" fill="none" stroke="#0284C7" stroke-width="3" filter="url(#glow)" stroke-linecap="round" />`;
+
+        // Points
+        points.forEach((p, idx) => {
+          const isToday = p.data.isToday;
+          const r = isToday ? 6 : 4.5;
+          const strokeCol = p.data.amountMl >= dailyGoalMl ? '#10B981' : '#0284C7';
+          html += `
+            <circle cx="${p.x}" cy="${p.y}" r="${r}" fill="#FFFFFF" stroke="${strokeCol}" stroke-width="2.5"
+              style="cursor: pointer;"
+              onclick="showTooltip(${p.x}, ${p.y}, ${idx})"
+            />
+          `;
+        });
+      } else if (currentType === 'line') {
+        // Clean Line Path with Smooth Bézier Curves
+        let pathD = `M ${points[0].x} ${points[0].y}`;
+        for (let i = 0; i < points.length - 1; i++) {
+          const p0 = points[i];
+          const p1 = points[i + 1];
+          const cx = (p0.x + p1.x) / 2;
+          pathD += ` C ${cx} ${p0.y}, ${cx} ${p1.y}, ${p1.x} ${p1.y}`;
+        }
+        html += `<path d="${pathD}" fill="none" stroke="#0284C7" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)" />`;
+
+        // Highlight Nodes & Halo Rings
+        points.forEach((p, idx) => {
+          const isReached = p.data.amountMl >= dailyGoalMl;
+          const isToday = p.data.isToday;
+          const primaryColor = isReached ? '#10B981' : '#0284C7';
+          
+          if (isToday) {
+            html += `
+              <circle cx="${p.x}" cy="${p.y}" r="10" fill="${primaryColor}" fill-opacity="0.22">
+                <animate attributeName="r" values="8;13;8" dur="2s" repeatCount="indefinite"/>
+                <animate attributeName="fill-opacity" values="0.3;0.08;0.3" dur="2s" repeatCount="indefinite"/>
+              </circle>
+            `;
+          }
+          
+          html += `
+            <circle cx="${p.x}" cy="${p.y}" r="${isToday ? 6 : 5}" fill="#FFFFFF" stroke="${primaryColor}" stroke-width="${isToday ? 3 : 2.5}"
+              style="cursor: pointer; transition: transform 0.15s ease;"
+              onclick="showTooltip(${p.x}, ${p.y}, ${idx})"
+            />
+          `;
+        });
+      } else if (currentType === 'bar') {
+        // Bar Chart
+        const barWidth = Math.min(22, (plotWidth / count) * 0.65);
+        rawData.forEach((d, i) => {
+          const x = padLeft + (i * stepX) - (barWidth / 2);
+          const y = getY(d.amountMl);
+          const barHeight = Math.max(4, padTop + plotHeight - y);
+          const isGoalReached = d.amountMl >= dailyGoalMl;
+          const fillColor = isGoalReached ? '#10B981' : 'url(#barGradient)';
+
+          html += `
+            <rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" rx="6" ry="6" fill="${fillColor}"
+              style="cursor: pointer;"
+              onclick="showTooltip(${x + barWidth / 2}, ${y}, ${i})"
+            />
+          `;
+        });
+      }
+
+      // X-Axis day labels
+      points.forEach(p => {
+        const isToday = p.data.isToday;
+        const fontW = isToday ? '700' : '500';
+        const col = isToday ? '#0284C7' : '#64748B';
+        html += `<text x="${p.x}" y="${height - 10}" class="axis-label" font-weight="${fontW}" fill="${col}">${p.data.dayName}</text>`;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function showTooltip(x, y, index) {
+      const d = rawData[index];
+      const tooltip = document.getElementById('tooltip');
+      const wrapper = document.getElementById('canvas-wrapper');
+      if (!tooltip || !wrapper) return;
+
+      const rect = wrapper.getBoundingClientRect();
+      const scaleX = rect.width / 340;
+      const scaleY = rect.height / 220;
+
+      const pct = Math.round((d.amountMl / dailyGoalMl) * 100);
+      const glasses = (d.amountMl / 250).toFixed(1);
+
+      tooltip.innerHTML = `
+        <div style="font-weight: 700; margin-bottom: 2px;">${d.fullDate}</div>
+        <div style="color: #38BDF8;">💧 ${toPersianDigits(d.amountMl)} میلی‌لیتر (${toPersianDigits(glasses)} لیوان)</div>
+        <div style="color: ${pct >= 100 ? '#34D399' : '#FCD34D'}; font-size: 10px;">${pct >= 100 ? '✅ تحقق هدف' : `${toPersianDigits(pct)}٪ از هدف روزانه`}</div>
+      `;
+
+      tooltip.style.left = `${x * scaleX}px`;
+      tooltip.style.top = `${(y * scaleY) - 10}px`;
+      tooltip.classList.add('visible');
+
+      clearTimeout(window.tooltipTimer);
+      window.tooltipTimer = setTimeout(() => {
+        tooltip.classList.remove('visible');
+      }, 3500);
+    }
+
+    // Public method callable from Kotlin WebView
+    window.updateData = function(jsonString) {
+      try {
+        const parsed = JSON.parse(jsonString);
+        if (parsed.days && Array.isArray(parsed.days)) {
+          rawData = parsed.days;
+        }
+        if (parsed.goalMl) {
+          dailyGoalMl = parsed.goalMl;
+          const badge = document.getElementById('goal-badge');
+          if (badge) badge.innerText = `هدف: ${toPersianDigits(dailyGoalMl)} میلی‌لیتر`;
+        }
+        renderChart();
+      } catch (e) {
+        console.error("Failed to parse chart data", e);
+      }
+    };
+
+    // Initial render
+    window.onload = () => {
+      renderChart();
+    };
+  </script>
+</body>
+</html>

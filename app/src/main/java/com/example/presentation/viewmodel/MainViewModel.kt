@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.alarms.ReminderScheduler
 import com.example.data.remote.clerk.AuthState
 import com.example.data.remote.clerk.ClerkAuthManager
+import com.example.data.remote.clerk.ClerkAuthResult
 import com.clerk.android.Clerk
 import com.example.domain.companion.HealthCompanionManager
 import com.example.domain.model.AlertFilterPolicy
@@ -64,6 +65,9 @@ class MainViewModel(
 
     val authState: StateFlow<AuthState> = clerkAuthManager.authState
 
+    private val _onboardingCompletedInSession = MutableStateFlow(false)
+    val onboardingCompletedInSession: StateFlow<Boolean> = _onboardingCompletedInSession.asStateFlow()
+
     private val _celebrationEvent = MutableStateFlow<Pair<Int, Boolean>?>(null)
     val celebrationEvent: StateFlow<Pair<Int, Boolean>?> = _celebrationEvent.asStateFlow()
 
@@ -115,6 +119,12 @@ class MainViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val result = addWaterIntakeUseCase(amountMl, source, reminderId)
             _celebrationEvent.value = Pair(amountMl, result.isGoalJustAchieved)
+            // User interacted by logging water: stop any active background alarm
+            try {
+                com.example.alarms.WaterAlarmRingingService.stop(com.example.NooshApplication.instance)
+            } catch (e: Exception) {
+                // Ignore if not initialized
+            }
             if (rescheduleMinutes != null) {
                 reminderScheduler.scheduleRetryAlarm(
                     reminderId = reminderId ?: "reschedule_${System.currentTimeMillis()}",
@@ -153,10 +163,16 @@ class MainViewModel(
                 startTime = startTime,
                 endTime = endTime
             )
+            val appContext = com.example.NooshApplication.instance
             if (enabled) {
                 reminderScheduler.scheduleNextPendingReminder()
+                com.example.workers.WaterReminderWorkScheduler.schedulePeriodicReminders(
+                    appContext,
+                    intervalMinutes.coerceAtLeast(15)
+                )
             } else {
                 reminderScheduler.cancelAllAlarms()
+                com.example.workers.WaterReminderWorkScheduler.cancelAllReminders(appContext)
             }
             refreshCompanionStatus()
         }
@@ -164,6 +180,17 @@ class MainViewModel(
 
     fun triggerTestReminder(context: android.content.Context) {
         sendTestNotification(context)
+    }
+
+    fun triggerWorkManagerTestReminder(context: android.content.Context) {
+        com.example.workers.WaterReminderWorkScheduler.triggerImmediateTestReminder(context)
+    }
+
+    val isAlarmRinging: StateFlow<Boolean> = com.example.alarms.WaterAlarmRingingService.isRingingFlow
+
+    fun stopAlarmService(context: android.content.Context? = null) {
+        val ctx = context ?: com.example.NooshApplication.instance
+        com.example.alarms.WaterAlarmRingingService.stop(ctx)
     }
 
     fun triggerTestAlarmService(context: android.content.Context) {
@@ -306,21 +333,41 @@ class MainViewModel(
         }
     }
 
-    fun signInWithEmail(email: String, name: String) {
-        clerkAuthManager.signInWithEmail(email, name)
+    fun signInWithEmail(email: String, name: String, onResult: ((String) -> Unit)? = null) {
         viewModelScope.launch(Dispatchers.IO) {
+            val result = clerkAuthManager.registerOrSignInWithClerk(email, name)
             val profile = userRepository.getUserProfile()
-            val updated = profile.copy(name = name, email = email, clerkUserId = Clerk.getUser()?.id ?: "")
+            val clerkId = Clerk.getUser()?.id ?: "clerk_${email.hashCode().toUInt()}"
+            val updated = profile.copy(name = name, email = email, clerkUserId = clerkId)
             userRepository.updateProfile(updated)
             fcmTokenManager?.onUserLogin(updated.id)
+
+            withContext(Dispatchers.Main) {
+                when (result) {
+                    is ClerkAuthResult.Success -> {
+                        onResult?.invoke("خوش آمدید! ثبت‌نام در Clerk با موفقیت انجام شد ✓")
+                    }
+                    is ClerkAuthResult.NeedsVerification -> {
+                        onResult?.invoke("کد تأیید به ایمیل شما ارسال شد.")
+                    }
+                    is ClerkAuthResult.Error -> {
+                        onResult?.invoke("ورود انجام شد: ${result.message}")
+                    }
+                }
+            }
         }
     }
 
-    fun continueAsGuest() {
-        clerkAuthManager.continueAsGuest()
+    fun continueAsGuest(name: String = "کاربر مهمان") {
+        clerkAuthManager.continueAsGuest(name)
+        viewModelScope.launch(Dispatchers.IO) {
+            val current = userRepository.getUserProfile()
+            userRepository.updateProfile(current.copy(name = name.ifBlank { current.name }))
+        }
     }
 
     fun signOut() {
+        _onboardingCompletedInSession.value = false
         clerkAuthManager.signOut()
         fcmTokenManager?.onUserLogout()
     }
@@ -365,8 +412,10 @@ class MainViewModel(
         age: Int,
         gender: String,
         avatarBytes: ByteArray? = null,
-        avatarUri: String? = null
+        avatarUri: String? = null,
+        onComplete: (() -> Unit)? = null
     ) {
+        _onboardingCompletedInSession.value = true
         viewModelScope.launch(Dispatchers.IO) {
             val current = userRepository.getUserProfile()
             val calculation = com.example.domain.usecase.WaterCalculationAlgorithm.calculateDailyGoal(
@@ -406,6 +455,10 @@ class MainViewModel(
             // Reschedule reminders according to the newly calculated interval
             reminderRepository.scheduleDailyReminders(updated)
             reminderScheduler.scheduleNextPendingReminder()
+
+            withContext(Dispatchers.Main) {
+                onComplete?.invoke()
+            }
         }
     }
 

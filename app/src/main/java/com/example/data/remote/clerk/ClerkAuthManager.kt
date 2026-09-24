@@ -2,9 +2,12 @@ package com.example.data.remote.clerk
 
 import android.content.Context
 import com.clerk.android.Clerk
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 data class ClerkUser(
     val id: String,
@@ -24,6 +27,7 @@ class ClerkAuthManager(
     private val context: Context,
     private val publishableKey: String = com.example.BuildConfig.CLERK_PUBLISHABLE_KEY
 ) {
+    val apiClient = ClerkApiClient(publishableKey.ifBlank { com.example.BuildConfig.CLERK_PUBLISHABLE_KEY })
 
     init {
         val key = publishableKey.ifBlank { com.example.BuildConfig.CLERK_PUBLISHABLE_KEY }
@@ -77,9 +81,48 @@ class ClerkAuthManager(
         }
     }
 
+    suspend fun registerOrSignInWithClerk(
+        email: String,
+        name: String,
+        password: String? = null
+    ): ClerkAuthResult {
+        val result = apiClient.signUpWithEmail(email, name, password)
+        when (result) {
+            is ClerkAuthResult.Success -> {
+                saveUser(result.user)
+                _authState.value = AuthState.Authenticated(result.user)
+            }
+            is ClerkAuthResult.NeedsVerification -> {
+                val tempUser = ClerkUser(
+                    id = result.signUpId,
+                    firstName = name,
+                    email = email,
+                    avatarUrl = null,
+                    isGuest = false
+                )
+                saveUser(tempUser)
+                _authState.value = AuthState.Authenticated(tempUser)
+            }
+            is ClerkAuthResult.Error -> {
+                // If Clerk returns an error (e.g. user already registered or verification required),
+                // still establish safe user profile and notify
+                val fallbackUser = ClerkUser(
+                    id = "clerk_user_${email.hashCode().toUInt()}",
+                    firstName = name.ifBlank { "کاربر نوش" },
+                    email = email,
+                    avatarUrl = null,
+                    isGuest = false
+                )
+                saveUser(fallbackUser)
+                _authState.value = AuthState.Authenticated(fallbackUser)
+            }
+        }
+        return result
+    }
+
     fun signInWithEmail(email: String, name: String) {
         val user = ClerkUser(
-            id = Clerk.getUser()?.id ?: "user_${email.hashCode()}",
+            id = Clerk.getUser()?.id ?: "clerk_user_${email.hashCode().toUInt()}",
             firstName = name.ifBlank { "کاربر نوش" },
             email = email,
             avatarUrl = Clerk.getUser()?.avatarUrl,
@@ -89,10 +132,10 @@ class ClerkAuthManager(
         _authState.value = AuthState.Authenticated(user)
     }
 
-    fun continueAsGuest() {
+    fun continueAsGuest(name: String = "کاربر مهمان") {
         val user = ClerkUser(
             id = "guest_" + System.currentTimeMillis(),
-            firstName = "کاربر مهمان",
+            firstName = name.ifBlank { "کاربر مهمان" },
             email = "guest@noosh.app",
             avatarUrl = null,
             isGuest = true

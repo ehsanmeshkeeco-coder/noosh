@@ -55,6 +55,8 @@ data class UserProfile(
     val heightCm: Float = 170f,
     val age: Int = 25,
     val gender: String = "male",
+    val activityLevel: String = "moderate",
+    val climate: String = "temperate",
     val onboardingCompleted: Boolean = false
 )
 

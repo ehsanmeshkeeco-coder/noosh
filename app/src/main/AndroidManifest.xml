@@ -67,6 +67,7 @@
             <intent-filter>
                 <action android:name="com.example.action.DRANK_WATER" />
                 <action android:name="com.example.action.STALL_REMINDER" />
+                <action android:name="com.example.action.SNOOZE_REMINDER" />
             </intent-filter>
         </receiver>
 

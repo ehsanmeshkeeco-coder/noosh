@@ -351,4 +351,8 @@ class WaterRepositoryImpl(
             isGraceDayUsed = graceUsed
         )
     }
+
+    override suspend fun getDaysGoalAchievedCount(userId: String): Int {
+        return dailySummaryDao.getDaysGoalAchievedCount(userId)
+    }
 }

@@ -58,6 +58,25 @@ import com.example.presentation.screens.WeeklyAnalyticsScreen
 import com.example.presentation.theme.NooshPrimary
 import com.example.presentation.theme.NooshTheme
 import com.example.presentation.viewmodel.MainViewModel
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.font.FontWeight
+import android.content.Intent
 import com.example.presentation.viewmodel.MainViewModelFactory
 
 class MainActivity : ComponentActivity() {
@@ -90,6 +109,18 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        // Interacting with the app stops any background reminder alarm
+        com.example.alarms.WaterAlarmRingingService.stop(applicationContext)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        com.example.alarms.WaterAlarmRingingService.stop(applicationContext)
+    }
 }
 
 @Composable
@@ -121,6 +152,8 @@ fun MainAppScaffold(viewModel: MainViewModel) {
     val currentRoute = navBackStackEntry?.destination?.route
     val authState by viewModel.authState.collectAsState()
     val dashboardState by viewModel.dashboardState.collectAsState()
+    val onboardingCompletedInSession by viewModel.onboardingCompletedInSession.collectAsState()
+    val isAlarmRinging by viewModel.isAlarmRinging.collectAsState()
 
     val showBottomBar = currentRoute != Screen.Auth.route && currentRoute != Screen.Onboarding.route
 
@@ -140,10 +173,16 @@ fun MainAppScaffold(viewModel: MainViewModel) {
         }
     }
 
-    // Check if user needs onboarding wizard
-    LaunchedEffect(dashboardState?.profile?.onboardingCompleted, currentRoute) {
+    // Check if user needs onboarding wizard on initial launch only (never re-trigger when route changes or after completion)
+    LaunchedEffect(dashboardState?.profile?.onboardingCompleted, authState, onboardingCompletedInSession) {
         val profile = dashboardState?.profile
-        if (profile != null && !profile.onboardingCompleted && currentRoute != Screen.Auth.route && currentRoute != Screen.Onboarding.route) {
+        val isCompleted = onboardingCompletedInSession || (profile?.onboardingCompleted == true)
+        if (!isCompleted &&
+            authState is com.example.data.remote.clerk.AuthState.Authenticated &&
+            profile != null &&
+            currentRoute != Screen.Auth.route &&
+            currentRoute != Screen.Onboarding.route
+        ) {
             navController.navigate(Screen.Onboarding.route) {
                 popUpTo(Screen.Dashboard.route) { inclusive = false }
             }
@@ -225,7 +264,17 @@ fun MainAppScaffold(viewModel: MainViewModel) {
                 }
 
                 composable(Screen.Weekly.route) {
-                    WeeklyAnalyticsScreen(viewModel = viewModel)
+                    WeeklyAnalyticsScreen(
+                        viewModel = viewModel,
+                        onNavigateToRechartsTrend = { navController.navigate(Screen.RechartsTrend.route) }
+                    )
+                }
+
+                composable(Screen.RechartsTrend.route) {
+                    com.example.presentation.screens.RechartsWeeklyTrendScreen(
+                        viewModel = viewModel,
+                        onNavigateBack = { navController.popBackStack() }
+                    )
                 }
 
                 composable(Screen.Monthly.route) {
@@ -261,7 +310,8 @@ fun MainAppScaffold(viewModel: MainViewModel) {
                         onAuthSuccess = {
                             // After login, check if onboarding is needed
                             val profile = dashboardState?.profile
-                            if (profile != null && !profile.onboardingCompleted) {
+                            val isCompleted = viewModel.onboardingCompletedInSession.value || (profile?.onboardingCompleted == true)
+                            if (!isCompleted) {
                                 navController.navigate(Screen.Onboarding.route) {
                                     popUpTo(Screen.Auth.route) { inclusive = true }
                                 }
@@ -292,6 +342,65 @@ fun MainAppScaffold(viewModel: MainViewModel) {
                 quickAddBounds = quickAddBounds,
                 bottomNavBounds = bottomNavBounds
             )
+        }
+
+        // Active background reminder alarm banner
+        if (isAlarmRinging) {
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFEFF6FF)),
+                border = BorderStroke(1.dp, Color(0xFF38BDF8)),
+                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 24.dp)
+                    .align(Alignment.TopCenter)
+                    .testTag("active_alarm_banner")
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 14.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Notifications,
+                            contentDescription = null,
+                            tint = NooshPrimary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column {
+                            Text(
+                                text = "زنگ یادآور آب فعال است 💧",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.sp,
+                                color = Color(0xFF0F172A)
+                            )
+                            Text(
+                                text = "برای توقف زنگ و ثبت آب لمس کنید",
+                                fontSize = 11.sp,
+                                color = Color(0xFF64748B)
+                            )
+                        }
+                    }
+                    Button(
+                        onClick = {
+                            viewModel.stopAlarmService()
+                            viewModel.addWater(250)
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = NooshPrimary),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Text("نوشیدم (+۲۵۰)", fontSize = 11.sp, color = Color.White)
+                    }
+                }
+            }
         }
     }
 }

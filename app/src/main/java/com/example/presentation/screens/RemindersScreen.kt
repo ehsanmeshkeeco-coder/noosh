@@ -71,6 +71,7 @@ fun RemindersScreen(
     val context = LocalContext.current
     val dashboardState by viewModel.dashboardState.collectAsState()
     val remindersList by viewModel.reminders.collectAsState()
+    val isAlarmRinging by viewModel.isAlarmRinging.collectAsState()
 
     val profile = dashboardState?.profile
 
@@ -396,33 +397,203 @@ fun RemindersScreen(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Test Fullscreen Alarm Clock Ringing Button
-            Button(
-                onClick = {
-                    viewModel.triggerTestAlarmService(context)
-                },
+            // Test Soft Recurring Background Alarm Service Button
+            if (isAlarmRinging) {
+                Button(
+                    onClick = {
+                        viewModel.stopAlarmService(context)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp)
+                        .testTag("btn_stop_ringing_alarm"),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFDC2626)
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Alarm,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "توقف زنگ یادآور فعال (در حال پخش)",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
+            } else {
+                Button(
+                    onClick = {
+                        viewModel.triggerTestAlarmService(context)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp)
+                        .testTag("btn_test_ringing_alarm"),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF0284C7)
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Alarm,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "تست زنگ ملایم پس‌زمینه (نوای تکرارشونده) ⏰",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
+            }
+
+            Text(
+                text = "این سرویس در پس‌زمینه صدای زنگ ملایم و تکرارشونده پخش می‌کند و تا زمانی که وارد برنامه نشوید یا روی اعلان تپ نکنید، زنگ ادامه خواهد داشت.",
+                fontSize = 11.sp,
+                color = Color(0xFF64748B),
+                lineHeight = 16.sp,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp)
-                    .testTag("btn_test_ringing_alarm"),
-                shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF0284C7)
-                )
+                    .padding(top = 6.dp, start = 4.dp, end = 4.dp)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // WorkManager Periodic Background Reminder Card
+            Card(
+                shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFF0FDF4)),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF86EFAC)),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("workmanager_reminder_card")
             ) {
-                Icon(
-                    imageVector = Icons.Default.Alarm,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "تست زنگ هشدار پیوسته و صفحه تمام‌صفحه ⏰",
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFF22C55E)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.CheckCircle,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "یادآور دوره‌ای WorkManager",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF14532D)
+                            )
+                            Text(
+                                text = "همگام با سرویس بهینه باتری اندروید",
+                                fontSize = 11.sp,
+                                color = Color(0xFF16A34A)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text = "با این قابلیت، حتی اگر برنامه بسته باشد، یادآور ملایم در نوار اعلانات ظاهر شده و می‌توانید مستقیماً از نوار وضعیت بدون باز کردن برنامه آب بنوشید یا آن را به تعویق بیندازید:",
+                        fontSize = 12.sp,
+                        color = Color(0xFF166534),
+                        lineHeight = 18.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Text(
+                            text = "💧 ثبت ۲۵۰ml",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFF0369A1),
+                            modifier = Modifier
+                                .background(Color(0xFFE0F2FE), RoundedCornerShape(8.dp))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                        Text(
+                            text = "🥛 ثبت ۵۰۰ml",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFF0369A1),
+                            modifier = Modifier
+                                .background(Color(0xFFE0F2FE), RoundedCornerShape(8.dp))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                        Text(
+                            text = "⏳ تعویق ۱۰ دقیقه‌ای",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFFB45309),
+                            modifier = Modifier
+                                .background(Color(0xFFFEF3C7), RoundedCornerShape(8.dp))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    Button(
+                        onClick = {
+                            viewModel.triggerWorkManagerTestReminder(context)
+                            Toast.makeText(
+                                context,
+                                "اعلان هوشمند WorkManager ارسال شد! نوار اعلانات را پایین بکشید 💧",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                            .testTag("btn_trigger_workmanager_reminder"),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF16A34A))
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Notifications,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "تست اعلان هوشمند در نوار اعلانات",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))

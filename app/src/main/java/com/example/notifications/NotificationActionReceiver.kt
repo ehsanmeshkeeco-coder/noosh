@@ -39,9 +39,10 @@ class NotificationActionReceiver : BroadcastReceiver() {
                         app.reminderScheduler.scheduleNextPendingReminder()
 
                         launch(Dispatchers.Main) {
+                            val farsiAmount = com.example.core.util.DateTimeUtils.toPersianDigits(amountMl.toString())
                             Toast.makeText(
                                 context,
-                                context.getString(R.string.congratulations_subtitle),
+                                "آفرین! $farsiAmount میلی‌لیتر آب ثبت شد 💧",
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -52,6 +53,23 @@ class NotificationActionReceiver : BroadcastReceiver() {
             } else {
                 pendingResult.finish()
             }
+        } else if (intent.action == NotificationHelper.ACTION_SNOOZE_REMINDER) {
+            val pendingResult = goAsync()
+            val delayMinutes = intent.getIntExtra(NotificationHelper.EXTRA_DELAY_MINUTES, 10).toLong()
+
+            // Dismiss notification
+            NotificationHelper.cancelNotification(context)
+
+            // Reschedule via WorkManager
+            com.example.workers.WaterReminderWorkScheduler.scheduleSnoozeReminder(context, delayMinutes)
+
+            Toast.makeText(
+                context,
+                "یادآور به مدت ${com.example.core.util.DateTimeUtils.toPersianDigits(delayMinutes.toString())} دقیقه به تعویق افتاد ⏳",
+                Toast.LENGTH_SHORT
+            ).show()
+
+            pendingResult.finish()
         } else if (intent.action == NotificationHelper.ACTION_STALL_REMINDER) {
             val pendingResult = goAsync()
             val reminderId = intent.getStringExtra(NotificationHelper.EXTRA_REMINDER_ID) ?: ""

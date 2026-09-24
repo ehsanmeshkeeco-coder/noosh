@@ -25,6 +25,9 @@ interface DailyWaterSummaryDao {
     @Query("SELECT * FROM daily_water_summaries WHERE userId = :userId ORDER BY date DESC LIMIT :limit")
     suspend fun getRecentSummaries(userId: String, limit: Int = 30): List<DailyWaterSummaryEntity>
 
+    @Query("SELECT COUNT(*) FROM daily_water_summaries WHERE userId = :userId AND totalConsumedMl >= goalMl")
+    suspend fun getDaysGoalAchievedCount(userId: String = "default_user"): Int
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrUpdateSummary(summary: DailyWaterSummaryEntity)
 

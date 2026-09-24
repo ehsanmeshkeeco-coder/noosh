@@ -22,9 +22,11 @@ import com.example.domain.repository.HealthRepository
 import com.example.domain.repository.SyncRepository
 import com.example.domain.repository.UserRepository
 import com.example.domain.repository.WaterRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
@@ -82,6 +84,9 @@ class SyncManager(
         val affectedDates = mutableSetOf<String>()
 
         for (entry in pendingEntries) {
+            if (!coroutineContext.isActive) {
+                break
+            }
             // Mark entry SYNCING
             outbox.updateAttempt(
                 id = entry.id,
@@ -141,6 +146,8 @@ class SyncManager(
                     }
                     else -> true
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Log.e(TAG, "Error processing outbox entry ${entry.id}: ${e.message}")
                 false
@@ -189,6 +196,8 @@ class SyncManager(
                     missedReminders = 0,
                     streakDays = streak.currentStreak
                 )
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Log.e(TAG, "Error recalculating historical health state: ${e.message}")
             }
@@ -207,6 +216,7 @@ class SyncManager(
             val unsynced = waterIntakeDao.getUnsyncedIntakes()
             var allSuccessful = true
             for (item in unsynced) {
+                if (!coroutineContext.isActive) break
                 val dto = SupabaseWaterIntake(
                     id = item.id,
                     userId = item.userId,
@@ -223,6 +233,8 @@ class SyncManager(
                 }
             }
             allSuccessful
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "Sync failed: ${e.message}")
             false
@@ -235,6 +247,7 @@ class SyncManager(
         try {
             val remoteIntakes = supabaseClient.fetchWaterIntakes("default_user", 0)
             for (remote in remoteIntakes) {
+                if (!coroutineContext.isActive) break
                 val local = waterIntakeDao.getIntakeById(remote.id)
                 if (local == null) {
                     val entity = com.example.data.local.room.entity.WaterIntakeEntity(
@@ -252,6 +265,8 @@ class SyncManager(
                 }
             }
             true
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "Reconciliation failed: ${e.message}")
             false

@@ -58,8 +58,8 @@ class NooshApplication : Application() {
 
     val supabaseClient: SupabaseClient by lazy {
         SupabaseClient(
-            supabaseUrl = "",
-            supabaseKey = ""
+            supabaseUrl = BuildConfig.SUPABASE_URL,
+            supabaseKey = BuildConfig.SUPABASE_SERVICE_ROLE_KEY.ifBlank { BuildConfig.SUPABASE_ANON_KEY }
         )
     }
 
@@ -109,9 +109,6 @@ class NooshApplication : Application() {
             scope = applicationScope,
             onNetworkRestored = {
                 com.example.data.remote.sync.SyncWorker.enqueueImmediateSync(this)
-                applicationScope.launch(Dispatchers.IO) {
-                    syncManager.processOutboxSync()
-                }
             }
         )
     }
@@ -125,7 +122,7 @@ class NooshApplication : Application() {
     val clerkAuthManager: ClerkAuthManager by lazy {
         ClerkAuthManager(
             context = this,
-            publishableKey = ""
+            publishableKey = BuildConfig.CLERK_PUBLISHABLE_KEY
         )
     }
 
@@ -156,8 +153,14 @@ class NooshApplication : Application() {
         )
     }
 
+    companion object {
+        lateinit var instance: NooshApplication
+            private set
+    }
+
     override fun onCreate() {
         super.onCreate()
+        instance = this
         NotificationHelper.createNotificationChannel(this)
         fcmTokenManager.initTokenRegistration()
 
@@ -165,9 +168,17 @@ class NooshApplication : Application() {
         com.example.data.remote.sync.SyncWorker.schedulePeriodicSync(this)
 
         applicationScope.launch(Dispatchers.IO) {
-            val profile = userRepository.getUserProfile()
-            if (profile.reminderEnabled) {
-                reminderScheduler.scheduleNextPendingReminder()
+            try {
+                val profile = userRepository.getUserProfile()
+                if (profile.reminderEnabled) {
+                    reminderScheduler.scheduleNextPendingReminder()
+                    com.example.workers.WaterReminderWorkScheduler.schedulePeriodicReminders(
+                        this@NooshApplication,
+                        profile.reminderIntervalMinutes.coerceAtLeast(15)
+                    )
+                }
+            } catch (e: Throwable) {
+                android.util.Log.w("NooshApplication", "Initial reminders setup skipped: ${e.message}")
             }
         }
     }

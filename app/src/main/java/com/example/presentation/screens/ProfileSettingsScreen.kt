@@ -21,6 +21,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.CloudDone
 import androidx.compose.material.icons.filled.CloudSync
@@ -64,6 +66,9 @@ import coil.compose.AsyncImage
 import com.example.R
 import com.example.core.util.DateTimeUtils
 import com.example.data.remote.clerk.AuthState
+import com.example.domain.model.StreakInfo
+import com.example.presentation.components.HydrationGoalCalculatorDialog
+import com.example.presentation.components.HydrationStreakCard
 import com.example.presentation.theme.NooshPrimary
 import com.example.presentation.theme.NooshSubtleBlue
 import com.example.presentation.theme.SuccessGreen
@@ -84,6 +89,7 @@ fun ProfileSettingsScreen(
     val profile = dashboardState?.profile
     var currentGoal by remember(profile) { mutableIntStateOf(profile?.dailyWaterGoalMl ?: 2000) }
     var graceDayEnabled by remember(profile) { mutableStateOf(profile?.graceDayEnabled ?: true) }
+    var showCalculatorDialog by remember { mutableStateOf(false) }
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
@@ -215,6 +221,16 @@ fun ProfileSettingsScreen(
                                 fontSize = 12.sp,
                                 color = Color(0xFF64748B)
                             )
+                            val isClerkUser = when (val a = authState) {
+                                is AuthState.Authenticated -> !a.user.isGuest
+                                else -> false
+                            }
+                            Text(
+                                text = if (isClerkUser) "متصل به Clerk ✓" else "حساب محلی",
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (isClerkUser) Color(0xFF16A34A) else Color(0xFF94A3B8)
+                            )
                         }
                     }
 
@@ -226,6 +242,15 @@ fun ProfileSettingsScreen(
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // Hydration Streak & Badges Section
+            val streakInfo = dashboardState?.streak ?: StreakInfo(currentStreak = 1, longestStreak = 1, isGraceDayUsed = false)
+            HydrationStreakCard(
+                streakInfo = streakInfo,
+                graceDayEnabled = graceDayEnabled
+            )
 
             Spacer(modifier = Modifier.height(14.dp))
 
@@ -254,7 +279,7 @@ fun ProfileSettingsScreen(
                                 color = Color(0xFF0F172A)
                             )
                             Text(
-                                text = "قد، وزن، سن و محاسبه هوشمند",
+                                text = "قد، وزن، سن، تحرک و اقلیم",
                                 fontSize = 11.sp,
                                 color = Color(0xFF64748B)
                             )
@@ -292,6 +317,53 @@ fun ProfileSettingsScreen(
                             val genderLabel = if (profile?.gender == "female") "خانم" else "آقا"
                             Text(genderLabel, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
                         }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Activity & Climate overview row
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceAround
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("سطح تحرک", fontSize = 11.sp, color = Color(0xFF94A3B8))
+                            val activityText = when (profile?.activityLevel) {
+                                "sedentary" -> "کم‌تحرک 🪑"
+                                "active" -> "پرتحرک 🏃"
+                                "very_active" -> "ورزشکار 🏋️"
+                                else -> "معتدل 🚶"
+                            }
+                            Text(activityText, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+                        }
+
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("اقلیم محیط", fontSize = 11.sp, color = Color(0xFF94A3B8))
+                            val climateText = when (profile?.climate) {
+                                "cold" -> "سرد / خنک ❄️"
+                                "warm_dry" -> "گرم و خشک 🏜️"
+                                "hot_humid" -> "گرم و شرجی 🌴"
+                                else -> "معتدل 🌤️"
+                            }
+                            Text(climateText, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    OutlinedButton(
+                        onClick = { showCalculatorDialog = true },
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(Icons.Default.Calculate, contentDescription = null, tint = NooshPrimary, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "محاسبه هوشمند هدف با وزن، تحرک و اقلیم",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = NooshPrimary
+                        )
                     }
                 }
             }
@@ -368,6 +440,25 @@ fun ProfileSettingsScreen(
                                 )
                             )
                         }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // Dedicated Hydration Calculator Quick Launch Button
+                    Button(
+                        onClick = { showCalculatorDialog = true },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = NooshSubtleBlue),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = NooshPrimary, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "پیشنهاد اختصاصی با ماشین‌حساب هیدراتاسیون",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = NooshPrimary
+                        )
                     }
                 }
             }
@@ -529,5 +620,34 @@ fun ProfileSettingsScreen(
 
             Spacer(modifier = Modifier.height(90.dp))
         }
+    }
+
+    if (showCalculatorDialog) {
+        HydrationGoalCalculatorDialog(
+            initialWeightKg = profile?.weightKg ?: 70f,
+            initialActivityLevel = profile?.activityLevel ?: "moderate",
+            initialClimate = profile?.climate ?: "temperate",
+            onApply = { targetGoalMl, weightKg, activityLevel, climate ->
+                currentGoal = targetGoalMl
+                viewModel.updateDailyGoal(targetGoalMl)
+                profile?.let {
+                    viewModel.updateProfile(
+                        it.copy(
+                            dailyWaterGoalMl = targetGoalMl,
+                            weightKg = weightKg,
+                            activityLevel = activityLevel,
+                            climate = climate
+                        )
+                    )
+                }
+                showCalculatorDialog = false
+                Toast.makeText(
+                    context,
+                    "هدف مصرف روزانه به ${DateTimeUtils.toPersianDigits(targetGoalMl.toString())} میلی‌لیتر به‌روزرسانی شد!",
+                    Toast.LENGTH_LONG
+                ).show()
+            },
+            onDismiss = { showCalculatorDialog = false }
+        )
     }
 }

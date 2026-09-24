@@ -43,6 +43,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -87,13 +88,22 @@ fun OnboardingWizardScreen(
 ) {
     val context = LocalContext.current
     val dashboardState by viewModel.dashboardState.collectAsState()
+    val authState by viewModel.authState.collectAsState()
     val initialProfile = dashboardState?.profile
+    val authUser = (authState as? com.example.data.remote.clerk.AuthState.Authenticated)?.user
 
     // Step state: 0 = Profile & Photo, 1 = Biometrics (Height, Weight, Age, Gender), 2 = Calculated Goal & Result
     var currentStep by remember { mutableIntStateOf(0) }
 
+    // Pre-populate name from auth or profile without duplicate re-entry
+    val knownName = remember(initialProfile, authUser) {
+        val n1 = authUser?.firstName?.takeIf { it.isNotBlank() && it != "کاربر مهمان" && it != "کاربر نوش" && it != "کاربر گرامی" }
+        val n2 = initialProfile?.name?.takeIf { it.isNotBlank() && it != "کاربر مهمان" && it != "کاربر نوش" && it != "کاربر گرامی" }
+        n1 ?: n2 ?: (authUser?.firstName ?: initialProfile?.name ?: "کاربر گرامی")
+    }
+
     // Form states
-    var name by remember(initialProfile) { mutableStateOf(initialProfile?.name ?: "کاربر گرامی") }
+    var name by remember(knownName) { mutableStateOf(knownName) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var selectedImageBytes by remember { mutableStateOf<ByteArray?>(null) }
 
@@ -101,6 +111,7 @@ fun OnboardingWizardScreen(
     var heightCm by remember(initialProfile) { mutableFloatStateOf(initialProfile?.heightCm ?: 170f) }
     var age by remember(initialProfile) { mutableIntStateOf(initialProfile?.age ?: 25) }
     var gender by remember(initialProfile) { mutableStateOf(initialProfile?.gender ?: "male") }
+    var isSaving by remember { mutableStateOf(false) }
 
     // Photo picker launcher
     val photoPickerLauncher = rememberLauncherForActivityResult(
@@ -239,19 +250,26 @@ fun OnboardingWizardScreen(
                         currentStep++
                     } else {
                         // Complete onboarding: Save profile + recalculate
-                        viewModel.saveOnboardingProfile(
-                            name = name,
-                            weightKg = weightKg,
-                            heightCm = heightCm,
-                            age = age,
-                            gender = gender,
-                            avatarBytes = selectedImageBytes,
-                            avatarUri = selectedImageUri?.toString()
-                        )
-                        Toast.makeText(context, "برنامه هوشمند شما با موفقیت فعال شد!", Toast.LENGTH_SHORT).show()
-                        onCompleteOnboarding()
+                        if (!isSaving) {
+                            isSaving = true
+                            viewModel.saveOnboardingProfile(
+                                name = name,
+                                weightKg = weightKg,
+                                heightCm = heightCm,
+                                age = age,
+                                gender = gender,
+                                avatarBytes = selectedImageBytes,
+                                avatarUri = selectedImageUri?.toString(),
+                                onComplete = {
+                                    isSaving = false
+                                    Toast.makeText(context, "برنامه هوشمند شما با موفقیت فعال شد!", Toast.LENGTH_SHORT).show()
+                                    onCompleteOnboarding()
+                                }
+                            )
+                        }
                     }
                 },
+                enabled = !isSaving,
                 colors = ButtonDefaults.buttonColors(containerColor = NooshPrimary),
                 shape = RoundedCornerShape(14.dp),
                 modifier = Modifier
@@ -259,14 +277,22 @@ fun OnboardingWizardScreen(
                     .height(52.dp)
                     .testTag("onboarding_next_button")
             ) {
-                Text(
-                    text = if (currentStep == 2) "تأیید و شروع تور تعاملی ✨" else "مرحله بعد",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                if (currentStep < 2) {
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Icon(Icons.Default.ArrowForward, contentDescription = null)
+                if (isSaving) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(22.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text(
+                        text = if (currentStep == 2) "تأیید و شروع تور تعاملی ✨" else "مرحله بعد",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    if (currentStep < 2) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Icon(Icons.Default.ArrowForward, contentDescription = null)
+                    }
                 }
             }
         }

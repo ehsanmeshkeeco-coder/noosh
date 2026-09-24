@@ -22,6 +22,7 @@ interface WaterRepository {
     fun getWeeklyReportFlow(userId: String = "default_user"): Flow<WeeklyReport>
     suspend fun getMonthlyReport(monthOffset: Int = 0, userId: String = "default_user"): MonthlyReport
     suspend fun calculateStreak(userId: String = "default_user"): StreakInfo
+    suspend fun getDaysGoalAchievedCount(userId: String = "default_user"): Int
 }
 
 interface UserRepository {

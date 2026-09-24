@@ -13,6 +13,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.example.NooshApplication
+import kotlinx.coroutines.CancellationException
 import java.util.concurrent.TimeUnit
 
 /**
@@ -29,9 +30,19 @@ class SyncWorker(
         Log.d(TAG, "SyncWorker started execution. Run attempt: $runAttemptCount")
         val app = applicationContext as? NooshApplication ?: return Result.failure()
 
+        if (isStopped) {
+            Log.d(TAG, "SyncWorker is stopped before execution.")
+            return Result.retry()
+        }
+
         return try {
             val syncManager = app.syncManager
             val allSuccess = syncManager.processOutboxSync()
+
+            if (isStopped) {
+                Log.d(TAG, "SyncWorker was stopped during execution.")
+                return Result.retry()
+            }
 
             if (allSuccess) {
                 Log.d(TAG, "SyncWorker completed all outbox items successfully.")
@@ -44,6 +55,9 @@ class SyncWorker(
                     Result.failure()
                 }
             }
+        } catch (e: CancellationException) {
+            Log.d(TAG, "SyncWorker coroutine cancelled: ${e.message}")
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "SyncWorker failed with exception: ${e.message}", e)
             if (runAttemptCount < MAX_ATTEMPTS) {
@@ -77,7 +91,7 @@ class SyncWorker(
 
                 WorkManager.getInstance(context).enqueueUniqueWork(
                     UNIQUE_IMMEDIATE_NAME,
-                    ExistingWorkPolicy.REPLACE,
+                    ExistingWorkPolicy.KEEP,
                     request
                 )
                 Log.d(TAG, "Enqueued immediate SyncWorker.")

@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ShowChart
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.TrendingUp
@@ -40,15 +41,24 @@ import androidx.compose.ui.unit.sp
 import com.example.R
 import com.example.core.util.DateTimeUtils
 import com.example.domain.model.DayIntake
+import com.example.presentation.components.RechartsWeeklyVisualization
 import com.example.presentation.components.WeeklyBarChart
 import com.example.presentation.theme.NooshPrimary
 import com.example.presentation.theme.NooshSubtleBlue
 import com.example.presentation.theme.SuccessGreen
 import com.example.presentation.viewmodel.MainViewModel
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 
 @Composable
 fun WeeklyAnalyticsScreen(
     viewModel: MainViewModel,
+    onNavigateToRechartsTrend: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val weeklyReport by viewModel.weeklyReport.collectAsState()
@@ -147,13 +157,96 @@ fun WeeklyAnalyticsScreen(
 
             Spacer(modifier = Modifier.height(18.dp))
 
-            // Weekly Bar Chart
+            // Chart View Mode Switcher
+            var selectedChartMode by remember { mutableIntStateOf(0) }
             val days = report?.days ?: emptyList()
-            WeeklyBarChart(
-                days = days,
-                averageMl = avgMl,
-                goalMl = 2000
-            )
+
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                TabRow(
+                    selectedTabIndex = selectedChartMode,
+                    containerColor = Color.Transparent,
+                    contentColor = NooshPrimary,
+                    indicator = { tabPositions ->
+                        TabRowDefaults.SecondaryIndicator(
+                            modifier = Modifier.tabIndicatorOffset(tabPositions[selectedChartMode]),
+                            color = NooshPrimary,
+                            height = 3.dp
+                        )
+                    }
+                ) {
+                    Tab(
+                        selected = selectedChartMode == 0,
+                        onClick = { selectedChartMode = 0 },
+                        text = {
+                            Text(
+                                text = "نمودار هوشمند Recharts",
+                                fontWeight = if (selectedChartMode == 0) FontWeight.Bold else FontWeight.Normal,
+                                fontSize = 13.sp
+                            )
+                        }
+                    )
+                    Tab(
+                        selected = selectedChartMode == 1,
+                        onClick = { selectedChartMode = 1 },
+                        text = {
+                            Text(
+                                text = "نمودار ستونی بومی",
+                                fontWeight = if (selectedChartMode == 1) FontWeight.Bold else FontWeight.Normal,
+                                fontSize = 13.sp
+                            )
+                        }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            if (selectedChartMode == 0) {
+                // Interactive Recharts Visualization
+                RechartsWeeklyVisualization(
+                    days = days,
+                    goalMl = 2000,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            } else {
+                // Native Weekly Bar Chart
+                WeeklyBarChart(
+                    days = days,
+                    averageMl = avgMl,
+                    goalMl = 2000
+                )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            androidx.compose.material3.OutlinedButton(
+                onClick = onNavigateToRechartsTrend,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .testTag("btn_open_recharts_dedicated_screen"),
+                shape = RoundedCornerShape(12.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, NooshPrimary)
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ShowChart,
+                    contentDescription = null,
+                    tint = NooshPrimary,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "مشاهده در صفحه اختصاصی نمودار خطی Recharts ↗",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = NooshPrimary
+                )
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 

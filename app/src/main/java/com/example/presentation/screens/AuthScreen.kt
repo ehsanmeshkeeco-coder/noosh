@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -65,6 +66,8 @@ fun AuthScreen(
 
     var nameInput by remember { mutableStateOf("") }
     var emailInput by remember { mutableStateOf("") }
+    var passwordInput by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
 
     val scrollState = rememberScrollState()
 
@@ -155,6 +158,14 @@ fun AuthScreen(
                             text = state.user.email,
                             fontSize = 13.sp,
                             color = Color(0xFF64748B)
+                        )
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        Text(
+                            text = "شناسه Clerk: ${state.user.id}",
+                            fontSize = 11.sp,
+                            color = Color(0xFF94A3B8)
                         )
 
                         Spacer(modifier = Modifier.height(10.dp))
@@ -261,33 +272,64 @@ fun AuthScreen(
                             singleLine = true
                         )
 
+                        Spacer(modifier = Modifier.height(14.dp))
+
+                        OutlinedTextField(
+                            value = passwordInput,
+                            onValueChange = { passwordInput = it },
+                            label = { Text("رمز عبور (اختیاری برای Clerk)") },
+                            visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(14.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = NooshPrimary,
+                                unfocusedBorderColor = Color(0xFFCBD5E1)
+                            ),
+                            singleLine = true
+                        )
+
                         Spacer(modifier = Modifier.height(22.dp))
+
+                        var isSubmitting by remember { mutableStateOf(false) }
 
                         Button(
                             onClick = {
                                 if (emailInput.isNotBlank()) {
                                     val name = nameInput.ifBlank { "کاربر نوش" }
-                                    viewModel.signInWithEmail(emailInput.trim(), name.trim())
-                                    Toast.makeText(context, "خوش آمدید، $name!", Toast.LENGTH_SHORT).show()
-                                    onAuthSuccess()
+                                    isSubmitting = true
+                                    viewModel.signInWithEmail(emailInput.trim(), name.trim()) { message ->
+                                        isSubmitting = false
+                                        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                                        onAuthSuccess()
+                                    }
                                 } else {
                                     Toast.makeText(context, "لطفاً ایمیل خود را وارد کنید", Toast.LENGTH_SHORT).show()
                                 }
                             },
+                            enabled = !isSubmitting,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(52.dp),
                             shape = RoundedCornerShape(14.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = NooshPrimary)
                         ) {
-                            Text("ورود و ثبت‌نام", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                            if (isSubmitting) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp),
+                                    color = Color.White,
+                                    strokeWidth = 2.dp
+                                )
+                            } else {
+                                Text("ورود و ساخت حساب در Clerk", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                            }
                         }
 
                         Spacer(modifier = Modifier.height(12.dp))
 
                         OutlinedButton(
                             onClick = {
-                                viewModel.continueAsGuest()
+                                val guestName = nameInput.trim().ifBlank { "کاربر مهمان" }
+                                viewModel.continueAsGuest(guestName)
                                 Toast.makeText(context, "ورود به عنوان مهمان", Toast.LENGTH_SHORT).show()
                                 onAuthSuccess()
                             },

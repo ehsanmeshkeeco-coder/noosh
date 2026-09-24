@@ -33,7 +33,9 @@ object WaterCalculationAlgorithm {
         age: Int,
         gender: String, // "male", "female", "other"
         wakeUpTime: String = "08:00",
-        sleepTime: String = "23:00"
+        sleepTime: String = "23:00",
+        activityLevel: String = "moderate",
+        climate: String = "temperate"
     ): CalculationResult {
         val safeWeight = if (weightKg <= 0f) 70f else weightKg.coerceIn(30f, 250f)
         val safeHeight = if (heightCm <= 0f) 170f else heightCm.coerceIn(100f, 230f)
@@ -63,16 +65,36 @@ object WaterCalculationAlgorithm {
             totalMl -= 100f
         }
 
-        // 4. Round to nearest 50 ml and clamp
+        // 4. Activity level adjustment
+        val activityBonus = when (activityLevel.lowercase()) {
+            "sedentary" -> 0f
+            "moderate" -> 350f
+            "active" -> 700f
+            "very_active" -> 1050f
+            else -> 350f
+        }
+        totalMl += activityBonus
+
+        // 5. Climate adjustment
+        val climateBonus = when (climate.lowercase()) {
+            "cold" -> 0f
+            "temperate" -> 150f
+            "warm_dry" -> 400f
+            "hot_humid" -> 650f
+            else -> 150f
+        }
+        totalMl += climateBonus
+
+        // 6. Round to nearest 50 ml and clamp
         val finalGoalMl = ((totalMl / 50.0f).roundToInt() * 50).coerceIn(1200, 4500)
         val glasses = (finalGoalMl / 250.0f).roundToInt()
 
-        // 5. Calculate ideal reminder interval based on awake hours
+        // 7. Calculate ideal reminder interval based on awake hours
         val awakeHours = calculateAwakeHours(wakeUpTime, sleepTime)
         // Distribute water evenly across awake hours
         val calculatedInterval = ((awakeHours * 60f) / glasses).roundToInt().coerceIn(30, 120)
 
-        val explanation = "بر اساس وزن ${safeWeight.toInt()} کیلوگرم، قد ${safeHeight.toInt()} سانتی‌متر و سن $safeAge سال، مصرف روزانه $finalGoalMl میلی‌لیتر ($glasses لیوان) برای هیدراتاسیون کامل بدن شما پیشنهاد می‌شود."
+        val explanation = "بر اساس وزن ${safeWeight.toInt()} کیلوگرم، قد ${safeHeight.toInt()} سانتی‌متر، سن $safeAge سال، تحرک و اقلیم، مصرف روزانه $finalGoalMl میلی‌لیتر ($glasses لیوان) برای هیدراتاسیون کامل بدن شما پیشنهاد می‌شود."
 
         return CalculationResult(
             dailyWaterGoalMl = finalGoalMl,
