@@ -182,7 +182,8 @@ fun InteractiveTourOverlay(
         ) {
             Card(
                 shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)),
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -201,13 +202,13 @@ fun InteractiveTourOverlay(
                             modifier = Modifier
                                 .size(36.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFFE0F2FE)),
+                                .background(MaterialTheme.colorScheme.primaryContainer),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Info,
                                 contentDescription = null,
-                                tint = NooshPrimary,
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -219,17 +220,17 @@ fun InteractiveTourOverlay(
                                 text = currentStep.title,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF0F172A)
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
                                 text = "مرحله ${activeStepIndex + 1} از ${steps.size}",
                                 fontSize = 11.sp,
-                                color = Color(0xFF94A3B8)
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
 
                         TextButton(onClick = onSkipTour) {
-                            Text("رد شدن", fontSize = 12.sp, color = Color(0xFF64748B))
+                            Text("رد شدن", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
 
@@ -239,7 +240,7 @@ fun InteractiveTourOverlay(
                         text = currentStep.description,
                         fontSize = 13.sp,
                         lineHeight = 20.sp,
-                        color = Color(0xFF334155),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Start
                     )
 
@@ -252,12 +253,13 @@ fun InteractiveTourOverlay(
                         Button(
                             onClick = onNextStep,
                             shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = NooshPrimary)
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                         ) {
                             Text(
                                 text = if (isLast) "شروع استفاده از نوش 💧" else "متوجه شدم، بعدی",
                                 fontSize = 13.sp,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onPrimary
                             )
                         }
                     }

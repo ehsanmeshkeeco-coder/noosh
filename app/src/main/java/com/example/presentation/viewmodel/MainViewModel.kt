@@ -48,11 +48,29 @@ class MainViewModel(
     private val reminderScheduler: ReminderScheduler,
     private val healthCompanionManager: HealthCompanionManager? = null,
     private val fcmTokenManager: FcmTokenManager? = null,
-    private val supabaseClient: com.example.data.remote.supabase.SupabaseClient? = null
+    private val supabaseClient: com.example.data.remote.supabase.SupabaseClient? = null,
+    private val gamificationRepository: com.example.domain.repository.GamificationRepository? = null
 ) : ViewModel() {
 
     val dashboardState: StateFlow<DashboardState?> = getDashboardDataUseCase()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    val badges: StateFlow<List<com.example.domain.gamification.GamificationBadge>> = (gamificationRepository?.getAllBadgesFlow() ?: emptyFlow())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    private val _levelUpEvent = MutableStateFlow<Triple<Int, String, String>?>(null)
+    val levelUpEvent: StateFlow<Triple<Int, String, String>?> = _levelUpEvent.asStateFlow()
+
+    private val _xpToastEvent = MutableStateFlow<Int?>(null)
+    val xpToastEvent: StateFlow<Int?> = _xpToastEvent.asStateFlow()
+
+    fun dismissLevelUpDialog() {
+        _levelUpEvent.value = null
+    }
+
+    fun clearXpToast() {
+        _xpToastEvent.value = null
+    }
 
     val weeklyReport: StateFlow<WeeklyReport?> = waterRepository.getWeeklyReportFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
@@ -119,6 +137,18 @@ class MainViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val result = addWaterIntakeUseCase(amountMl, source, reminderId)
             _celebrationEvent.value = Pair(amountMl, result.isGoalJustAchieved)
+            _xpToastEvent.value = result.xpEarned
+
+            if (result.didLevelUp) {
+                val levelInfo = com.example.domain.gamification.GamificationManager.getLevelInfo(result.newTotalXp)
+                _levelUpEvent.value = Triple(result.newLevel, levelInfo.titleFa, levelInfo.iconEmoji)
+            }
+
+            // Immediately update Home Screen AppWidgets
+            try {
+                com.example.widgets.WaterProgressWidgetProvider.updateAllWidgets(com.example.NooshApplication.instance)
+            } catch (ignored: Exception) {}
+
             // User interacted by logging water: stop any active background alarm
             try {
                 com.example.alarms.WaterAlarmRingingService.stop(com.example.NooshApplication.instance)
@@ -184,6 +214,22 @@ class MainViewModel(
 
     fun triggerWorkManagerTestReminder(context: android.content.Context) {
         com.example.workers.WaterReminderWorkScheduler.triggerImmediateTestReminder(context)
+    }
+
+    fun toggleThemeMode() {
+        val currentMode = dashboardState.value?.profile?.themeMode ?: "system"
+        val nextMode = when (currentMode) {
+            "light" -> "dark"
+            "dark" -> "light"
+            else -> "dark"
+        }
+        updateThemeMode(nextMode)
+    }
+
+    fun updateThemeMode(mode: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userRepository.updateThemeMode(mode)
+        }
     }
 
     val isAlarmRinging: StateFlow<Boolean> = com.example.alarms.WaterAlarmRingingService.isRingingFlow
@@ -333,25 +379,40 @@ class MainViewModel(
         }
     }
 
-    fun signInWithEmail(email: String, name: String, onResult: ((String) -> Unit)? = null) {
+    fun signInWithEmail(
+        email: String,
+        name: String,
+        password: String? = null,
+        onResult: ((isSuccess: Boolean, message: String) -> Unit)? = null
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
-            val result = clerkAuthManager.registerOrSignInWithClerk(email, name)
-            val profile = userRepository.getUserProfile()
-            val clerkId = Clerk.getUser()?.id ?: "clerk_${email.hashCode().toUInt()}"
-            val updated = profile.copy(name = name, email = email, clerkUserId = clerkId)
-            userRepository.updateProfile(updated)
-            fcmTokenManager?.onUserLogin(updated.id)
-
+            val result = clerkAuthManager.registerOrSignInWithClerk(email, name, password)
             withContext(Dispatchers.Main) {
                 when (result) {
                     is ClerkAuthResult.Success -> {
-                        onResult?.invoke("خوش آمدید! ثبت‌نام در Clerk با موفقیت انجام شد ✓")
+                        val profile = userRepository.getUserProfile()
+                        val updated = profile.copy(
+                            name = result.user.firstName.ifBlank { name },
+                            email = result.user.email,
+                            clerkUserId = result.user.id
+                        )
+                        userRepository.updateProfile(updated)
+                        fcmTokenManager?.onUserLogin(updated.id)
+                        onResult?.invoke(true, "خوش آمدید! احراز هویت با موفقیت انجام شد ✓")
                     }
                     is ClerkAuthResult.NeedsVerification -> {
-                        onResult?.invoke("کد تأیید به ایمیل شما ارسال شد.")
+                        val profile = userRepository.getUserProfile()
+                        val updated = profile.copy(
+                            name = name,
+                            email = email,
+                            clerkUserId = result.signUpId
+                        )
+                        userRepository.updateProfile(updated)
+                        fcmTokenManager?.onUserLogin(updated.id)
+                        onResult?.invoke(true, "ثبت‌نام با موفقیت انجام شد و کد تأیید ارسال گردید ✓")
                     }
                     is ClerkAuthResult.Error -> {
-                        onResult?.invoke("ورود انجام شد: ${result.message}")
+                        onResult?.invoke(false, result.message)
                     }
                 }
             }
@@ -485,7 +546,8 @@ class MainViewModelFactory(
     private val reminderScheduler: ReminderScheduler,
     private val healthCompanionManager: HealthCompanionManager? = null,
     private val fcmTokenManager: FcmTokenManager? = null,
-    private val supabaseClient: com.example.data.remote.supabase.SupabaseClient? = null
+    private val supabaseClient: com.example.data.remote.supabase.SupabaseClient? = null,
+    private val gamificationRepository: com.example.domain.repository.GamificationRepository? = null
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -501,7 +563,8 @@ class MainViewModelFactory(
                 reminderScheduler = reminderScheduler,
                 healthCompanionManager = healthCompanionManager,
                 fcmTokenManager = fcmTokenManager,
-                supabaseClient = supabaseClient
+                supabaseClient = supabaseClient,
+                gamificationRepository = gamificationRepository
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")

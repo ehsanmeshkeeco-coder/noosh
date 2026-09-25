@@ -6,6 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.data.local.room.dao.DailyWaterSummaryDao
+import com.example.data.local.room.dao.GamificationDao
 import com.example.data.local.room.dao.HealthAlertEventDao
 import com.example.data.local.room.dao.HealthCompanionDao
 import com.example.data.local.room.dao.ReminderDao
@@ -13,12 +14,14 @@ import com.example.data.local.room.dao.SyncOutboxDao
 import com.example.data.local.room.dao.UserProfileDao
 import com.example.data.local.room.dao.WaterIntakeDao
 import com.example.data.local.room.entity.DailyWaterSummaryEntity
+import com.example.data.local.room.entity.GamificationBadgeEntity
 import com.example.data.local.room.entity.HealthAlertEventEntity
 import com.example.data.local.room.entity.HealthCompanionEntity
 import com.example.data.local.room.entity.ReminderEntity
 import com.example.data.local.room.entity.SyncOutboxEntity
 import com.example.data.local.room.entity.UserProfileEntity
 import com.example.data.local.room.entity.WaterIntakeEntity
+import com.example.domain.gamification.GamificationManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -31,9 +34,10 @@ import kotlinx.coroutines.launch
         DailyWaterSummaryEntity::class,
         HealthAlertEventEntity::class,
         HealthCompanionEntity::class,
-        SyncOutboxEntity::class
+        SyncOutboxEntity::class,
+        GamificationBadgeEntity::class
     ],
-    version = 5,
+    version = 7,
     exportSchema = false
 )
 abstract class NooshDatabase : RoomDatabase() {
@@ -44,6 +48,7 @@ abstract class NooshDatabase : RoomDatabase() {
     abstract fun healthAlertEventDao(): HealthAlertEventDao
     abstract fun healthCompanionDao(): HealthCompanionDao
     abstract fun syncOutboxDao(): SyncOutboxDao
+    abstract fun gamificationDao(): GamificationDao
 
     companion object {
         @Volatile
@@ -72,6 +77,11 @@ abstract class NooshDatabase : RoomDatabase() {
                                         sleepTime = "23:00"
                                     )
                                     database.userProfileDao().insertOrUpdateProfile(defaultProfile)
+
+                                    val badgeEntities = GamificationManager.defaultBadges.map {
+                                        GamificationBadgeEntity.fromDomain(it)
+                                    }
+                                    database.gamificationDao().insertBadgesIfAbsent(badgeEntities)
                                 }
                             }
                         }

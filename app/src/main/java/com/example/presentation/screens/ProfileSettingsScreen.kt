@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.CloudDone
 import androidx.compose.material.icons.filled.CloudSync
+import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Sync
@@ -128,7 +129,7 @@ fun ProfileSettingsScreen(
             Text(
                 text = "تنظیمات شخصی، هدف‌گذاری و حساب کاربری",
                 fontSize = 13.sp,
-                color = Color(0xFF64748B),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 2.dp)
@@ -139,7 +140,8 @@ fun ProfileSettingsScreen(
             // User Identity Card
             Card(
                 shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.5.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -155,7 +157,7 @@ fun ProfileSettingsScreen(
                             modifier = Modifier
                                 .size(58.dp)
                                 .clip(CircleShape)
-                                .background(NooshSubtleBlue)
+                                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f))
                                 .clickable {
                                     photoPickerLauncher.launch(
                                         PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
@@ -176,7 +178,7 @@ fun ProfileSettingsScreen(
                                 Icon(
                                     imageVector = Icons.Default.Person,
                                     contentDescription = "پروفایل",
-                                    tint = NooshPrimary,
+                                    tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(32.dp)
                                 )
                             }
@@ -187,13 +189,13 @@ fun ProfileSettingsScreen(
                                     .align(Alignment.BottomEnd)
                                     .size(20.dp)
                                     .clip(CircleShape)
-                                    .background(NooshPrimary),
+                                    .background(MaterialTheme.colorScheme.primary),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.CameraAlt,
                                     contentDescription = "تغییر تصویر",
-                                    tint = Color.White,
+                                    tint = MaterialTheme.colorScheme.onPrimary,
                                     modifier = Modifier.size(12.dp)
                                 )
                             }
@@ -214,22 +216,22 @@ fun ProfileSettingsScreen(
                                 text = userName,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF0F172A)
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
                                 text = userEmail,
                                 fontSize = 12.sp,
-                                color = Color(0xFF64748B)
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             val isClerkUser = when (val a = authState) {
                                 is AuthState.Authenticated -> !a.user.isGuest
                                 else -> false
                             }
                             Text(
-                                text = if (isClerkUser) "متصل به Clerk ✓" else "حساب محلی",
+                                text = if (isClerkUser) "حساب همگام و فعال ✓" else "حساب محلی",
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = if (isClerkUser) Color(0xFF16A34A) else Color(0xFF94A3B8)
+                                color = if (isClerkUser) Color(0xFF16A34A) else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -257,7 +259,8 @@ fun ProfileSettingsScreen(
             // Biometric Profile & Calculation Card
             Card(
                 shape = RoundedCornerShape(18.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -276,21 +279,21 @@ fun ProfileSettingsScreen(
                                 text = "مشخصات زیستی و بدنی",
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF0F172A)
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
                                 text = "قد، وزن، سن، تحرک و اقلیم",
                                 fontSize = 11.sp,
-                                color = Color(0xFF64748B)
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
 
                         Button(
                             onClick = onNavigateToOnboarding,
                             shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = NooshPrimary)
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                         ) {
-                            Text("تنظیم مجدد ویزارد", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            Text("تنظیم مجدد ویزارد", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
                         }
                     }
 
@@ -301,21 +304,21 @@ fun ProfileSettingsScreen(
                         horizontalArrangement = Arrangement.SpaceAround
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("وزن", fontSize = 11.sp, color = Color(0xFF94A3B8))
-                            Text("${profile?.weightKg?.toInt() ?: 70} kg", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+                            Text("وزن", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("${profile?.weightKg?.toInt() ?: 70} kg", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("قد", fontSize = 11.sp, color = Color(0xFF94A3B8))
-                            Text("${profile?.heightCm?.toInt() ?: 170} cm", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+                            Text("قد", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("${profile?.heightCm?.toInt() ?: 170} cm", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("سن", fontSize = 11.sp, color = Color(0xFF94A3B8))
-                            Text("${profile?.age ?: 25} سال", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+                            Text("سن", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("${profile?.age ?: 25} سال", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                         }
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("جنسیت", fontSize = 11.sp, color = Color(0xFF94A3B8))
+                            Text("جنسیت", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             val genderLabel = if (profile?.gender == "female") "خانم" else "آقا"
-                            Text(genderLabel, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+                            Text(genderLabel, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                         }
                     }
 
@@ -327,25 +330,25 @@ fun ProfileSettingsScreen(
                         horizontalArrangement = Arrangement.SpaceAround
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("سطح تحرک", fontSize = 11.sp, color = Color(0xFF94A3B8))
+                            Text("سطح تحرک", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             val activityText = when (profile?.activityLevel) {
                                 "sedentary" -> "کم‌تحرک 🪑"
                                 "active" -> "پرتحرک 🏃"
                                 "very_active" -> "ورزشکار 🏋️"
                                 else -> "معتدل 🚶"
                             }
-                            Text(activityText, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+                            Text(activityText, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                         }
 
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("اقلیم محیط", fontSize = 11.sp, color = Color(0xFF94A3B8))
+                            Text("اقلیم محیط", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             val climateText = when (profile?.climate) {
                                 "cold" -> "سرد / خنک ❄️"
                                 "warm_dry" -> "گرم و خشک 🏜️"
                                 "hot_humid" -> "گرم و شرجی 🌴"
                                 else -> "معتدل 🌤️"
                             }
-                            Text(climateText, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0F172A))
+                            Text(climateText, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                         }
                     }
 
@@ -356,13 +359,13 @@ fun ProfileSettingsScreen(
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Icon(Icons.Default.Calculate, contentDescription = null, tint = NooshPrimary, modifier = Modifier.size(16.dp))
+                        Icon(Icons.Default.Calculate, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = "محاسبه هوشمند هدف با وزن، تحرک و اقلیم",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = NooshPrimary
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
@@ -373,7 +376,8 @@ fun ProfileSettingsScreen(
             // Daily Water Goal Card
             Card(
                 shape = RoundedCornerShape(18.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -391,13 +395,13 @@ fun ProfileSettingsScreen(
                             text = stringResource(R.string.daily_water_goal),
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF0F172A)
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
                             text = "${DateTimeUtils.toPersianDigits(currentGoal.toString())} میلی‌لیتر (${DateTimeUtils.toPersianDigits((currentGoal / 250).toString())} لیوان)",
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Black,
-                            color = NooshPrimary
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
 
@@ -412,9 +416,9 @@ fun ProfileSettingsScreen(
                         valueRange = 1000f..4000f,
                         steps = 11,
                         colors = SliderDefaults.colors(
-                            thumbColor = NooshPrimary,
-                            activeTrackColor = NooshPrimary,
-                            inactiveTrackColor = NooshSubtleBlue
+                            thumbColor = MaterialTheme.colorScheme.primary,
+                            activeTrackColor = MaterialTheme.colorScheme.primary,
+                            inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant
                         )
                     )
 
@@ -435,8 +439,8 @@ fun ProfileSettingsScreen(
                                 },
                                 label = { Text(text = "${goal / 250} لیوان", fontSize = 11.sp) },
                                 colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = NooshPrimary,
-                                    selectedLabelColor = Color.White
+                                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary
                                 )
                             )
                         }
@@ -448,16 +452,16 @@ fun ProfileSettingsScreen(
                     Button(
                         onClick = { showCalculatorDialog = true },
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = NooshSubtleBlue),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = NooshPrimary, modifier = Modifier.size(16.dp))
+                        Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = "پیشنهاد اختصاصی با ماشین‌حساب هیدراتاسیون",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = NooshPrimary
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
@@ -468,7 +472,8 @@ fun ProfileSettingsScreen(
             // Grace Day (Streak Grace Option)
             Card(
                 shape = RoundedCornerShape(18.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -487,7 +492,7 @@ fun ProfileSettingsScreen(
                                 modifier = Modifier
                                     .size(36.dp)
                                     .clip(CircleShape)
-                                    .background(Color(0xFFFEF3C7)),
+                                    .background(MaterialTheme.colorScheme.surfaceVariant),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
@@ -502,7 +507,7 @@ fun ProfileSettingsScreen(
                                 text = stringResource(R.string.grace_day_toggle),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF0F172A)
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
 
@@ -520,9 +525,100 @@ fun ProfileSettingsScreen(
                     Text(
                         text = stringResource(R.string.grace_day_desc),
                         fontSize = 12.sp,
-                        color = Color(0xFF64748B),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         lineHeight = 18.sp
                     )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Appearance & Theme Mode Card
+            Card(
+                shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = androidx.compose.foundation.BorderStroke(
+                    1.dp,
+                    MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("theme_settings_card")
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.DarkMode,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column {
+                            Text(
+                                text = "حالت شب و روز (تم برنامه)",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "تنظیم ظاهر روشن یا تاریک برای استفاده آسان در شب",
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    val selectedTheme = profile?.themeMode ?: "system"
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        listOf(
+                            Triple("light", "روز (روشن)", "☀️"),
+                            Triple("dark", "شب (تاریک)", "🌙"),
+                            Triple("system", "سیستم", "⚙️")
+                        ).forEach { (mode, label, icon) ->
+                            val isSelected = selectedTheme == mode
+                            FilterChip(
+                                selected = isSelected,
+                                onClick = {
+                                    viewModel.updateThemeMode(mode)
+                                },
+                                label = {
+                                    Text(
+                                        text = "$icon $label",
+                                        fontSize = 12.sp,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                    )
+                                },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                                ),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .testTag("chip_theme_$mode")
+                            )
+                        }
+                    }
                 }
             }
 
@@ -531,7 +627,8 @@ fun ProfileSettingsScreen(
             // Supabase Cloud Sync Status Card
             Card(
                 shape = RoundedCornerShape(18.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -550,7 +647,7 @@ fun ProfileSettingsScreen(
                                 modifier = Modifier
                                     .size(36.dp)
                                     .clip(CircleShape)
-                                    .background(Color(0xFFDCFCE7)),
+                                    .background(MaterialTheme.colorScheme.surfaceVariant),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
@@ -566,12 +663,12 @@ fun ProfileSettingsScreen(
                                     text = "همگام‌سازی ابری سلامت",
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF0F172A)
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Text(
                                     text = syncStatus,
                                     fontSize = 11.sp,
-                                    color = Color(0xFF64748B)
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
@@ -601,7 +698,7 @@ fun ProfileSettingsScreen(
                 Icon(
                     imageVector = Icons.Default.WaterDrop,
                     contentDescription = null,
-                    tint = NooshPrimary,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(28.dp)
                 )
                 Spacer(modifier = Modifier.height(4.dp))
@@ -609,12 +706,12 @@ fun ProfileSettingsScreen(
                     text = "نوش — نسخه ۱.۰.۰",
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF475569)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
                     text = stringResource(R.string.app_tagline),
                     fontSize = 12.sp,
-                    color = Color(0xFF94A3B8)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                 )
             }
 

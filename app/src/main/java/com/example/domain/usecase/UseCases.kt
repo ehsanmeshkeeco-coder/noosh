@@ -2,12 +2,17 @@ package com.example.domain.usecase
 
 import com.clerk.android.Clerk
 import com.example.domain.companion.HealthCompanionManager
+import com.example.domain.gamification.GamificationBadge
+import com.example.domain.gamification.GamificationManager
+import com.example.domain.gamification.GamificationResult
+import com.example.domain.gamification.UserLevelInfo
 import com.example.domain.model.AlertSeverity
 import com.example.domain.model.HealthEventType
 import com.example.domain.model.Reminder
 import com.example.domain.model.StreakInfo
 import com.example.domain.model.UserProfile
 import com.example.domain.model.WaterIntake
+import com.example.domain.repository.GamificationRepository
 import com.example.domain.repository.HealthRepository
 import com.example.domain.repository.ReminderRepository
 import com.example.domain.repository.SyncRepository
@@ -20,7 +25,12 @@ data class AddWaterResult(
     val intake: WaterIntake,
     val newTotalMl: Int,
     val goalMl: Int,
-    val isGoalJustAchieved: Boolean
+    val isGoalJustAchieved: Boolean,
+    val xpEarned: Int = 0,
+    val newTotalXp: Int = 0,
+    val newLevel: Int = 1,
+    val didLevelUp: Boolean = false,
+    val newlyUnlockedBadges: List<GamificationBadge> = emptyList()
 )
 
 class AddWaterIntakeUseCase(
@@ -29,7 +39,8 @@ class AddWaterIntakeUseCase(
     private val reminderRepository: ReminderRepository,
     private val syncRepository: SyncRepository,
     private val healthRepository: HealthRepository,
-    private val healthCompanionManager: HealthCompanionManager? = null
+    private val healthCompanionManager: HealthCompanionManager? = null,
+    private val gamificationRepository: GamificationRepository? = null
 ) {
     suspend operator fun invoke(
         amountMl: Int,
@@ -42,6 +53,18 @@ class AddWaterIntakeUseCase(
         val newTotal = previousTotal + amountMl
         val goalMl = profile.dailyWaterGoalMl
         val isGoalJustAchieved = previousTotal < goalMl && newTotal >= goalMl
+
+        // Non-blocking gamification XP & badge check
+        var gamificationResult: GamificationResult? = null
+        try {
+            val streak = waterRepository.calculateStreak()
+            gamificationResult = gamificationRepository?.addXpAndCheckAchievements(
+                intakeAmountMl = amountMl,
+                isGoalAchieved = isGoalJustAchieved,
+                todayTotalMl = newTotal,
+                streakDays = streak.currentStreak
+            )
+        } catch (ignored: Exception) {}
 
         // Trigger non-blocking cloud and health sync
         try {
@@ -69,11 +92,20 @@ class AddWaterIntakeUseCase(
             }
         } catch (ignored: Exception) {}
 
+        val earnedXp = gamificationResult?.xpEarned ?: GamificationManager.calculateXpForIntake(amountMl, isGoalJustAchieved)
+        val currentXp = gamificationResult?.totalXp ?: (profile.totalXp + earnedXp)
+        val currentLevel = gamificationResult?.level ?: GamificationManager.getLevelInfo(currentXp).level
+
         return AddWaterResult(
             intake = intake,
             newTotalMl = newTotal,
             goalMl = goalMl,
-            isGoalJustAchieved = isGoalJustAchieved
+            isGoalJustAchieved = isGoalJustAchieved,
+            xpEarned = earnedXp,
+            newTotalXp = currentXp,
+            newLevel = currentLevel,
+            didLevelUp = gamificationResult?.didLevelUp ?: false,
+            newlyUnlockedBadges = gamificationResult?.newlyUnlockedBadges ?: emptyList()
         )
     }
 }
@@ -87,7 +119,8 @@ data class DashboardState(
     val totalGlassesGoal: Int,
     val nextReminder: Reminder?,
     val recentIntakes: List<WaterIntake>,
-    val streak: StreakInfo
+    val streak: StreakInfo,
+    val levelInfo: UserLevelInfo = GamificationManager.getLevelInfo(profile.totalXp)
 )
 
 class GetDashboardDataUseCase(

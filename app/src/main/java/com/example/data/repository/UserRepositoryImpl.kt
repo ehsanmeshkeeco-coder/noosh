@@ -65,4 +65,9 @@ class UserRepositoryImpl(
             )
         )
     }
+
+    override suspend fun updateThemeMode(themeMode: String, userId: String) {
+        val current = getUserProfile(userId)
+        updateProfile(current.copy(themeMode = themeMode))
+    }
 }

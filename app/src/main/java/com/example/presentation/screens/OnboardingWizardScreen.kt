@@ -144,7 +144,7 @@ fun OnboardingWizardScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF8FAFC))
+            .background(MaterialTheme.colorScheme.background)
             .verticalScroll(scrollState)
             .padding(horizontal = 24.dp, vertical = 24.dp)
             .testTag("onboarding_wizard_screen"),
@@ -168,9 +168,9 @@ fun OnboardingWizardScreen(
                         .clip(RoundedCornerShape(6.dp))
                         .background(
                             when {
-                                isActive -> NooshPrimary
-                                isCompleted -> Color(0xFF60A5FA)
-                                else -> Color(0xFFCBD5E1)
+                                isActive -> MaterialTheme.colorScheme.primary
+                                isCompleted -> MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                                else -> MaterialTheme.colorScheme.surfaceVariant
                             }
                         )
                 )
@@ -309,7 +309,8 @@ private fun StepOneNameAndPhoto(
 ) {
     Card(
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -327,13 +328,13 @@ private fun StepOneNameAndPhoto(
                 text = "به «نوش» خوش آمدید! 💧",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF0F172A)
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Text(
                 text = "برای شروع بیایید یکدیگر را بهتر بشناسیم. لطفاً نام و تصویر دلخواهتان را مشخص کنید.",
                 fontSize = 13.sp,
-                color = Color(0xFF64748B),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 8.dp, bottom = 20.dp)
             )
@@ -343,7 +344,7 @@ private fun StepOneNameAndPhoto(
                 modifier = Modifier
                     .size(110.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFFE2E8F0))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
                     .clickable { onPickPhoto() },
                 contentAlignment = Alignment.Center
             ) {
@@ -366,14 +367,14 @@ private fun StepOneNameAndPhoto(
                         Icon(
                             imageVector = Icons.Default.AddAPhoto,
                             contentDescription = "انتخاب تصویر پروفایل",
-                            tint = NooshPrimary,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(32.dp)
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "افزودن عکس",
                             fontSize = 11.sp,
-                            color = NooshPrimary,
+                            color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Medium
                         )
                     }
@@ -387,14 +388,14 @@ private fun StepOneNameAndPhoto(
                 onValueChange = onNameChange,
                 label = { Text("نام شما") },
                 leadingIcon = {
-                    Icon(Icons.Default.Person, contentDescription = null, tint = NooshPrimary)
+                    Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                 },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(14.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = NooshPrimary,
-                    unfocusedBorderColor = Color(0xFFCBD5E1)
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
                 )
             )
         }
@@ -414,7 +415,8 @@ private fun StepTwoBiometrics(
 ) {
     Card(
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -427,13 +429,13 @@ private fun StepTwoBiometrics(
                 text = "شاخص‌های زیستی و فیزیکی",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF0F172A)
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Text(
                 text = "الگوریتم تخصصی نوش بر اساس وزن، قد، سن و جنسیت، حجم آب روزانه مورد نیاز بدنتان را محاسبه می‌کند.",
                 fontSize = 13.sp,
-                color = Color(0xFF64748B),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 4.dp, bottom = 20.dp)
             )
 
@@ -442,7 +444,7 @@ private fun StepTwoBiometrics(
                 text = "جنسیت:",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF334155)
+                color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(8.dp))
             Row(
@@ -473,12 +475,12 @@ private fun StepTwoBiometrics(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("وزن:", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = Color(0xFF334155))
+                Text("وزن:", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
                 Text(
                     text = "${weightKg.toInt()} کیلوگرم",
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp,
-                    color = NooshPrimary
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
             Slider(
@@ -486,7 +488,7 @@ private fun StepTwoBiometrics(
                 onValueChange = { onWeightChange(it) },
                 valueRange = 35f..150f,
                 steps = 114,
-                colors = SliderDefaults.colors(thumbColor = NooshPrimary, activeTrackColor = NooshPrimary)
+                colors = SliderDefaults.colors(thumbColor = MaterialTheme.colorScheme.primary, activeTrackColor = MaterialTheme.colorScheme.primary)
             )
 
             Spacer(modifier = Modifier.height(14.dp))
@@ -497,12 +499,12 @@ private fun StepTwoBiometrics(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("قد:", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = Color(0xFF334155))
+                Text("قد:", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
                 Text(
                     text = "${heightCm.toInt()} سانتی‌متر",
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp,
-                    color = NooshPrimary
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
             Slider(
@@ -510,7 +512,7 @@ private fun StepTwoBiometrics(
                 onValueChange = { onHeightChange(it) },
                 valueRange = 120f..220f,
                 steps = 99,
-                colors = SliderDefaults.colors(thumbColor = NooshPrimary, activeTrackColor = NooshPrimary)
+                colors = SliderDefaults.colors(thumbColor = MaterialTheme.colorScheme.primary, activeTrackColor = MaterialTheme.colorScheme.primary)
             )
 
             Spacer(modifier = Modifier.height(14.dp))
@@ -521,12 +523,12 @@ private fun StepTwoBiometrics(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("سن:", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = Color(0xFF334155))
+                Text("سن:", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
                 Text(
                     text = "$age سال",
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp,
-                    color = NooshPrimary
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
             Slider(
@@ -534,7 +536,7 @@ private fun StepTwoBiometrics(
                 onValueChange = { onAgeChange(it.toInt()) },
                 valueRange = 12f..90f,
                 steps = 77,
-                colors = SliderDefaults.colors(thumbColor = NooshPrimary, activeTrackColor = NooshPrimary)
+                colors = SliderDefaults.colors(thumbColor = MaterialTheme.colorScheme.primary, activeTrackColor = MaterialTheme.colorScheme.primary)
             )
         }
     }
@@ -551,10 +553,10 @@ private fun GenderOption(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(14.dp))
-            .background(if (isSelected) Color(0xFFE0F2FE) else Color(0xFFF1F5F9))
+            .background(if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant)
             .border(
                 width = if (isSelected) 2.dp else 1.dp,
-                color = if (isSelected) NooshPrimary else Color(0xFFE2E8F0),
+                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
                 shape = RoundedCornerShape(14.dp)
             )
             .clickable { onSelect() }
@@ -565,14 +567,14 @@ private fun GenderOption(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = if (isSelected) NooshPrimary else Color(0xFF64748B)
+                tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = title,
                 fontSize = 14.sp,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                color = if (isSelected) NooshPrimary else Color(0xFF475569)
+                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -585,7 +587,8 @@ private fun StepThreeWaterCalculationResult(
 ) {
     Card(
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -601,7 +604,7 @@ private fun StepThreeWaterCalculationResult(
                     .clip(CircleShape)
                     .background(
                         Brush.verticalGradient(
-                            listOf(Color(0xFF38BDF8), NooshPrimary)
+                            listOf(Color(0xFF38BDF8), MaterialTheme.colorScheme.primary)
                         )
                     ),
                 contentAlignment = Alignment.Center
@@ -620,13 +623,13 @@ private fun StepThreeWaterCalculationResult(
                 text = "برنامه هیدراتاسیون هوشمند شما",
                 fontSize = 19.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF0F172A)
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Text(
                 text = calculationResult.explanation,
                 fontSize = 13.sp,
-                color = Color(0xFF64748B),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 8.dp, bottom = 20.dp)
             )
@@ -654,7 +657,8 @@ private fun StepThreeWaterCalculationResult(
 
             Card(
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF0FDF4)),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
@@ -664,14 +668,14 @@ private fun StepThreeWaterCalculationResult(
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = null,
-                        tint = Color(0xFF16A34A),
+                        tint = SuccessGreen,
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(10.dp))
                     Text(
                         text = "تمامی یادآورها و اهداف به طور خودکار تنظیم و ذخیره خواهند شد.",
                         fontSize = 12.sp,
-                        color = Color(0xFF166534),
+                        color = MaterialTheme.colorScheme.onSurface,
                         lineHeight = 18.sp
                     )
                 }
@@ -690,15 +694,16 @@ private fun MetricBox(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFFF1F5F9))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f), RoundedCornerShape(16.dp))
             .padding(14.dp)
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-            Text(title, fontSize = 11.sp, color = Color(0xFF64748B))
+            Text(title, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(modifier = Modifier.height(4.dp))
-            Text(value, fontSize = 17.sp, fontWeight = FontWeight.ExtraBold, color = NooshPrimary)
+            Text(value, fontSize = 17.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.primary)
             Spacer(modifier = Modifier.height(2.dp))
-            Text(subtitle, fontSize = 10.sp, color = Color(0xFF94A3B8), textAlign = TextAlign.Center)
+            Text(subtitle, fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f), textAlign = TextAlign.Center)
         }
     }
 }

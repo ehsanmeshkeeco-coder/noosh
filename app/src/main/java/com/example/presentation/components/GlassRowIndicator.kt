@@ -60,7 +60,7 @@ fun GlassRowIndicator(
             Text(
                 text = "${DateTimeUtils.toPersianDigits((consumedGlasses * 250).toString())} میلی‌لیتر",
                 fontSize = 13.sp,
-                color = NooshPrimary,
+                color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.SemiBold
             )
         }
@@ -100,10 +100,10 @@ private fun GlassItem(
         modifier = Modifier
             .size(width = 32.dp, height = 44.dp)
             .clip(glassShape)
-            .background(if (isFilled) NooshPrimary else NooshSubtleBlue.copy(alpha = 0.5f))
+            .background(if (isFilled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant)
             .border(
                 width = 1.5.dp,
-                color = if (isFilled) NooshPrimary else Color(0xFFCBD5E1),
+                color = if (isFilled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
                 shape = glassShape
             )
             .clickable { onClick() }
@@ -114,14 +114,14 @@ private fun GlassItem(
             Icon(
                 imageVector = Icons.Default.Check,
                 contentDescription = "خورده شده",
-                tint = Color.White,
+                tint = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.size(16.dp)
             )
         } else {
             Text(
                 text = DateTimeUtils.toPersianDigits(index.toString()),
                 fontSize = 11.sp,
-                color = Color(0xFF64748B),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Medium
             )
         }

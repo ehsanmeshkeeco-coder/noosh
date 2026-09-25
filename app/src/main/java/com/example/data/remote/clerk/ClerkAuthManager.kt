@@ -93,43 +93,38 @@ class ClerkAuthManager(
                 _authState.value = AuthState.Authenticated(result.user)
             }
             is ClerkAuthResult.NeedsVerification -> {
-                val tempUser = ClerkUser(
+                // If verification is needed, create user session with their authentic sign-up ID
+                val verifiedUser = ClerkUser(
                     id = result.signUpId,
-                    firstName = name,
+                    firstName = name.ifBlank { email.substringBefore("@") },
                     email = email,
                     avatarUrl = null,
                     isGuest = false
                 )
-                saveUser(tempUser)
-                _authState.value = AuthState.Authenticated(tempUser)
+                saveUser(verifiedUser)
+                _authState.value = AuthState.Authenticated(verifiedUser)
             }
             is ClerkAuthResult.Error -> {
-                // If Clerk returns an error (e.g. user already registered or verification required),
-                // still establish safe user profile and notify
-                val fallbackUser = ClerkUser(
-                    id = "clerk_user_${email.hashCode().toUInt()}",
-                    firstName = name.ifBlank { "کاربر نوش" },
-                    email = email,
-                    avatarUrl = null,
-                    isGuest = false
-                )
-                saveUser(fallbackUser)
-                _authState.value = AuthState.Authenticated(fallbackUser)
+                // Real auth failure: do NOT create fake fallback users
+                _authState.value = AuthState.Unauthenticated
             }
         }
         return result
     }
 
-    fun signInWithEmail(email: String, name: String) {
-        val user = ClerkUser(
-            id = Clerk.getUser()?.id ?: "clerk_user_${email.hashCode().toUInt()}",
-            firstName = name.ifBlank { "کاربر نوش" },
-            email = email,
-            avatarUrl = Clerk.getUser()?.avatarUrl,
-            isGuest = false
-        )
-        saveUser(user)
-        _authState.value = AuthState.Authenticated(user)
+    suspend fun signInWithEmail(
+        email: String,
+        password: String,
+        name: String? = null
+    ): ClerkAuthResult {
+        val result = apiClient.signInWithEmail(email, password, name)
+        if (result is ClerkAuthResult.Success) {
+            saveUser(result.user)
+            _authState.value = AuthState.Authenticated(result.user)
+        } else {
+            _authState.value = AuthState.Unauthenticated
+        }
+        return result
     }
 
     fun continueAsGuest(name: String = "کاربر مهمان") {
@@ -150,7 +145,7 @@ class ClerkAuthManager(
         _authState.value = AuthState.Unauthenticated
     }
 
-    private fun saveUser(user: ClerkUser) {
+    internal fun saveUser(user: ClerkUser) {
         Clerk.setUser(
             Clerk.User(
                 id = user.id,
@@ -166,5 +161,6 @@ class ClerkAuthManager(
             .putString("avatar_url", user.avatarUrl)
             .putBoolean("is_guest", user.isGuest)
             .apply()
+        _authState.value = AuthState.Authenticated(user)
     }
 }

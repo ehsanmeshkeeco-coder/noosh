@@ -35,20 +35,24 @@ private val LightColorScheme = lightColorScheme(
     outline = Color(0xFFBAE6FD)
 )
 
-private val DarkColorScheme = lightColorScheme(
-    primary = NooshPrimary,
-    onPrimary = Color.White,
-    primaryContainer = NooshSubtleBlue,
-    onPrimaryContainer = NooshPrimaryDark,
-    secondary = NooshPrimaryLight,
-    onSecondary = Color.White,
-    background = Color(0xFFE8F6FF),
-    onBackground = TextPrimary,
-    surface = Color.White,
-    onSurface = TextPrimary,
-    surfaceVariant = Color(0xFFDDF2FF),
-    onSurfaceVariant = TextSecondary,
-    outline = Color(0xFFBAE6FD)
+private val DarkColorScheme = darkColorScheme(
+    primary = Color(0xFF38BDF8),
+    onPrimary = Color(0xFF082F49),
+    primaryContainer = Color(0xFF0369A1),
+    onPrimaryContainer = Color(0xFFE0F2FE),
+    secondary = Color(0xFF7DD3FC),
+    onSecondary = Color(0xFF0C4A6E),
+    secondaryContainer = Color(0xFF1E293B),
+    onSecondaryContainer = Color(0xFFBAE6FD),
+    tertiary = Color(0xFF34D399),
+    onTertiary = Color(0xFF064E3B),
+    background = Color(0xFF0B132B),
+    onBackground = Color(0xFFF1F5F9),
+    surface = Color(0xFF162038),
+    onSurface = Color(0xFFF1F5F9),
+    surfaceVariant = Color(0xFF1E293B),
+    onSurfaceVariant = Color(0xFF94A3B8),
+    outline = Color(0xFF334155)
 )
 
 @Composable
@@ -63,7 +67,10 @@ fun NooshTheme(
         SideEffect {
             val window = (view.context as Activity).window
             window.statusBarColor = colorScheme.background.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+            window.navigationBarColor = colorScheme.surface.toArgb()
+            val insetsController = WindowCompat.getInsetsController(window, view)
+            insetsController.isAppearanceLightStatusBars = !darkTheme
+            insetsController.isAppearanceLightNavigationBars = !darkTheme
         }
     }
 

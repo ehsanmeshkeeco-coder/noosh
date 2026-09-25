@@ -37,7 +37,8 @@ fun CelebrationDialog(
     Dialog(onDismissRequest = onDismiss) {
         Card(
             shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
@@ -65,7 +66,7 @@ fun CelebrationDialog(
                     },
                     fontSize = 26.sp,
                     fontWeight = FontWeight.Black,
-                    color = NooshPrimary,
+                    color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Center
                 )
 
@@ -89,7 +90,7 @@ fun CelebrationDialog(
                         text = "+${DateTimeUtils.toPersianDigits(amountMl.toString())} میلی‌لیتر آب اضافه شد",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF0284C7)
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
 
@@ -101,14 +102,14 @@ fun CelebrationDialog(
                         .fillMaxWidth()
                         .height(48.dp)
                         .testTag("celebration_dismiss_button"),
-                    colors = ButtonDefaults.buttonColors(containerColor = NooshPrimary),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(14.dp)
                 ) {
                     Text(
                         text = "ادامه 💧",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             }

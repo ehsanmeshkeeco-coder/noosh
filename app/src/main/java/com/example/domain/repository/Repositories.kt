@@ -38,6 +38,7 @@ interface UserRepository {
         endTime: String,
         userId: String = "default_user"
     )
+    suspend fun updateThemeMode(themeMode: String, userId: String = "default_user")
 }
 
 interface ReminderRepository {

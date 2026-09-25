@@ -104,7 +104,7 @@ fun RemindersScreen(
             Text(
                 text = "تنظیم بازه‌های زمانی هوشمند یادآوری آب",
                 fontSize = 13.sp,
-                color = Color(0xFF64748B),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 2.dp)
@@ -115,7 +115,11 @@ fun RemindersScreen(
             // Master Toggle Card
             Card(
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = androidx.compose.foundation.BorderStroke(
+                    1.dp,
+                    MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -131,13 +135,16 @@ fun RemindersScreen(
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(CircleShape)
-                                .background(if (isEnabled) NooshSubtleBlue else Color(0xFFF1F5F9)),
+                                .background(
+                                    if (isEnabled) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
+                                    else MaterialTheme.colorScheme.surfaceVariant
+                                ),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Alarm,
                                 contentDescription = null,
-                                tint = if (isEnabled) NooshPrimary else Color(0xFF94A3B8),
+                                tint = if (isEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(22.dp)
                             )
                         }
@@ -147,12 +154,12 @@ fun RemindersScreen(
                                 text = stringResource(R.string.reminders_toggle),
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF0F172A)
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
                                 text = if (isEnabled) "یادآورها فعال هستند" else "یادآورها موقتاً غیرفعالند",
                                 fontSize = 12.sp,
-                                color = if (isEnabled) SuccessGreen else Color(0xFF94A3B8)
+                                color = if (isEnabled) Color(0xFF10B981) else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -163,7 +170,10 @@ fun RemindersScreen(
                             isEnabled = checked
                             viewModel.updateReminderSettings(checked, selectedInterval, startTime, endTime)
                         },
-                        colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = NooshPrimary)
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                            checkedTrackColor = MaterialTheme.colorScheme.primary
+                        )
                     )
                 }
             }
@@ -173,7 +183,11 @@ fun RemindersScreen(
             // Intervals selection
             Card(
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = androidx.compose.foundation.BorderStroke(
+                    1.dp,
+                    MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -186,7 +200,7 @@ fun RemindersScreen(
                         text = stringResource(R.string.reminder_interval),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF0F172A)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(10.dp))
 
@@ -222,14 +236,14 @@ fun RemindersScreen(
                             Text(
                                 text = stringResource(R.string.reminder_start_time),
                                 fontSize = 12.sp,
-                                color = Color(0xFF64748B)
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = "ساعت ${DateTimeUtils.toPersianDigits(startTime)}",
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF0F172A)
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
 
@@ -237,14 +251,14 @@ fun RemindersScreen(
                             Text(
                                 text = stringResource(R.string.reminder_end_time),
                                 fontSize = 12.sp,
-                                color = Color(0xFF64748B)
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = "ساعت ${DateTimeUtils.toPersianDigits(endTime)}",
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF0F172A)
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }
@@ -256,7 +270,11 @@ fun RemindersScreen(
             // Inactivity Threshold Card (Section 56)
             Card(
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = androidx.compose.foundation.BorderStroke(
+                    1.dp,
+                    MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -269,13 +287,13 @@ fun RemindersScreen(
                         text = "تشخیص عدم فعالیت طولانی",
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF0F172A)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "اگر در زمان بیداری بیش از این زمان آبی مصرف نشود، هشدار عدم فعالیت برای همراه ارسال می‌شود.",
                         fontSize = 11.sp,
-                        color = Color(0xFF64748B)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.height(12.dp))
 
@@ -301,8 +319,8 @@ fun RemindersScreen(
                                 },
                                 modifier = Modifier.weight(1f),
                                 colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = NooshPrimary,
-                                    selectedLabelColor = Color.White
+                                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary
                                 )
                             )
                         }
@@ -315,7 +333,11 @@ fun RemindersScreen(
             // Sound & Vibration Preferences
             Card(
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = androidx.compose.foundation.BorderStroke(
+                    1.dp,
+                    MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -330,16 +352,24 @@ fun RemindersScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.VolumeUp, contentDescription = null, tint = NooshPrimary, modifier = Modifier.size(20.dp))
+                            Icon(Icons.Default.VolumeUp, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(10.dp))
-                            Text(text = stringResource(R.string.sound_toggle), fontSize = 14.sp)
+                            Text(
+                                text = stringResource(R.string.sound_toggle),
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
                         }
                         Switch(
                             checked = soundEnabled,
                             onCheckedChange = { checked ->
                                 soundEnabled = checked
                                 profile?.let { viewModel.updateProfile(it.copy(soundEnabled = checked)) }
-                            }
+                            },
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                                checkedTrackColor = MaterialTheme.colorScheme.primary
+                            )
                         )
                     }
 
@@ -351,16 +381,24 @@ fun RemindersScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Vibration, contentDescription = null, tint = NooshPrimary, modifier = Modifier.size(20.dp))
+                            Icon(Icons.Default.Vibration, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(10.dp))
-                            Text(text = stringResource(R.string.vibration_toggle), fontSize = 14.sp)
+                            Text(
+                                text = stringResource(R.string.vibration_toggle),
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
                         }
                         Switch(
                             checked = vibrateEnabled,
                             onCheckedChange = { checked ->
                                 vibrateEnabled = checked
                                 profile?.let { viewModel.updateProfile(it.copy(vibrateEnabled = checked)) }
-                            }
+                            },
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                                checkedTrackColor = MaterialTheme.colorScheme.primary
+                            )
                         )
                     }
                 }
@@ -459,7 +497,7 @@ fun RemindersScreen(
             Text(
                 text = "این سرویس در پس‌زمینه صدای زنگ ملایم و تکرارشونده پخش می‌کند و تا زمانی که وارد برنامه نشوید یا روی اعلان تپ نکنید، زنگ ادامه خواهد داشت.",
                 fontSize = 11.sp,
-                color = Color(0xFF64748B),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 lineHeight = 16.sp,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -471,8 +509,11 @@ fun RemindersScreen(
             // WorkManager Periodic Background Reminder Card
             Card(
                 shape = RoundedCornerShape(18.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF0FDF4)),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF86EFAC)),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = androidx.compose.foundation.BorderStroke(
+                    1.dp,
+                    Color(0xFF22C55E).copy(alpha = 0.5f)
+                ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -507,12 +548,12 @@ fun RemindersScreen(
                                 text = "یادآور دوره‌ای WorkManager",
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF14532D)
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
                                 text = "همگام با سرویس بهینه باتری اندروید",
                                 fontSize = 11.sp,
-                                color = Color(0xFF16A34A)
+                                color = Color(0xFF22C55E)
                             )
                         }
                     }
@@ -522,7 +563,7 @@ fun RemindersScreen(
                     Text(
                         text = "با این قابلیت، حتی اگر برنامه بسته باشد، یادآور ملایم در نوار اعلانات ظاهر شده و می‌توانید مستقیماً از نوار وضعیت بدون باز کردن برنامه آب بنوشید یا آن را به تعویق بیندازید:",
                         fontSize = 12.sp,
-                        color = Color(0xFF166534),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         lineHeight = 18.sp
                     )
 
@@ -536,27 +577,27 @@ fun RemindersScreen(
                             text = "💧 ثبت ۲۵۰ml",
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF0369A1),
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
-                                .background(Color(0xFFE0F2FE), RoundedCornerShape(8.dp))
+                                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
                                 .padding(horizontal = 8.dp, vertical = 4.dp)
                         )
                         Text(
                             text = "🥛 ثبت ۵۰۰ml",
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF0369A1),
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
-                                .background(Color(0xFFE0F2FE), RoundedCornerShape(8.dp))
+                                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
                                 .padding(horizontal = 8.dp, vertical = 4.dp)
                         )
                         Text(
                             text = "⏳ تعویق ۱۰ دقیقه‌ای",
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFFB45309),
+                            color = Color(0xFFF59E0B),
                             modifier = Modifier
-                                .background(Color(0xFFFEF3C7), RoundedCornerShape(8.dp))
+                                .background(Color(0xFFFEF3C7).copy(alpha = 0.25f), RoundedCornerShape(8.dp))
                                 .padding(horizontal = 8.dp, vertical = 4.dp)
                         )
                     }
@@ -615,7 +656,7 @@ fun RemindersScreen(
                 Text(
                     text = "برنامه یادآورهای امروز آماده است. در زمان‌های مشخص اعلان دریافت خواهید کرد 💧",
                     fontSize = 13.sp,
-                    color = Color(0xFF64748B),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(vertical = 12.dp)
                 )
             }
@@ -639,7 +680,11 @@ private fun ReminderItemCard(reminder: Reminder) {
 
     Card(
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp,
+            MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+        ),
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
@@ -655,7 +700,7 @@ private fun ReminderItemCard(reminder: Reminder) {
                 Icon(
                     imageVector = Icons.Default.Schedule,
                     contentDescription = null,
-                    tint = if (isCompleted) SuccessGreen else NooshPrimary,
+                    tint = if (isCompleted) Color(0xFF10B981) else MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(10.dp))
@@ -664,12 +709,12 @@ private fun ReminderItemCard(reminder: Reminder) {
                         text = "ساعت ${DateTimeUtils.formatDate(reminder.scheduledAt)}",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF0F172A)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = "${DateTimeUtils.toPersianDigits(reminder.amountMl.toString())} میلی‌لیتر (یک لیوان)",
                         fontSize = 12.sp,
-                        color = Color(0xFF64748B)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }

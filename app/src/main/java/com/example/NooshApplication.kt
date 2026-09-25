@@ -126,6 +126,13 @@ class NooshApplication : Application() {
         )
     }
 
+    val gamificationRepository: com.example.domain.repository.GamificationRepository by lazy {
+        com.example.data.repository.GamificationRepositoryImpl(
+            gamificationDao = database.gamificationDao(),
+            userProfileDao = database.userProfileDao()
+        )
+    }
+
     val reminderScheduler: ReminderScheduler by lazy {
         ReminderScheduler(
             context = this,
@@ -141,7 +148,8 @@ class NooshApplication : Application() {
             reminderRepository = reminderRepository,
             syncRepository = syncRepository,
             healthRepository = healthRepository,
-            healthCompanionManager = healthCompanionManager
+            healthCompanionManager = healthCompanionManager,
+            gamificationRepository = gamificationRepository
         )
     }
 

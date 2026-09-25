@@ -96,9 +96,9 @@
     <string name="tour_next">متوجه شدم، بعدی</string>
     <string name="tour_finish">شروع نوشیدن آب 💧</string>
     <string name="tour_skip">رد شدن از تور</string>
-    <string name="recharts_trend_title">نمودار Recharts</string>
-    <string name="recharts_trend_screen_title">روند خطی هفتگی Recharts</string>
-    <string name="recharts_trend_desc">تحلیل بصری مصرف آب ۷ روز اخیر با نمودار خطی Recharts</string>
+    <string name="recharts_trend_title">نمودار مصرف آب</string>
+    <string name="recharts_trend_screen_title">روند خطی هفتگی</string>
+    <string name="recharts_trend_desc">تحلیل بصری مصرف آب ۷ روز اخیر با نمودار تعاملی</string>
     <string name="notification_soft_title">وقت نوشیدن آب فرا رسیده 💧</string>
     <string name="notification_soft_body_template">%1$s عزیز، نوشیدن یک لیوان آب به شادابی ذهن و بدنتان کمک می‌کند.</string>
     <string name="notification_action_drink_250">نوشیدم (۲۵۰ml) 💧</string>

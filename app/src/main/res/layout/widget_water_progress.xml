@@ -4,67 +4,77 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_widget_card"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:padding="12dp">
 
+    <!-- Circular Progress Chart generated dynamically via Canvas -->
+    <ImageView
+        android:id="@+id/widget_circular_chart"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
+        android:contentDescription="نمودار دایره‌ای پیشرفت آب امروز"
+        android:scaleType="fitCenter" />
+
+    <!-- Info & Quick Add Action Column -->
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:layout_weight="1"
+        android:layout_marginStart="12dp"
+        android:orientation="vertical">
 
-        <ImageView
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:src="@drawable/ic_noosh_logo" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_noosh_logo" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="نوش | آب امروز"
+                android:textColor="#0369A1"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
         <TextView
-            android:layout_width="0dp"
+            android:id="@+id/widget_intake_text"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="8dp"
-            android:text="نوش | یادآور آب"
-            android:textColor="#0369A1"
-            android:textSize="14sp"
+            android:layout_marginTop="4dp"
+            android:text="۱۰۰۰ از ۲۰۰۰ میلی‌لیتر"
+            android:textColor="#0F172A"
+            android:textSize="12sp"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/widget_progress_percent"
+            android:id="@+id/widget_glasses_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="۵۰٪"
-            android:textColor="#0284C7"
-            android:textSize="16sp"
+            android:layout_marginTop="2dp"
+            android:text="۴ از ۸ لیوان استاندارد"
+            android:textColor="#64748B"
+            android:textSize="11sp" />
+
+        <!-- Quick Add Default Water Button (250ml Glass) -->
+        <Button
+            android:id="@+id/widget_btn_quick_add"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_widget_quick_btn"
+            android:text="+ ۱ لیوان (۲۵۰ml) 💧"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
             android:textStyle="bold" />
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/widget_intake_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="۱۰۰۰ از ۲۰۰۰ میلی‌لیتر (۴ از ۸ لیوان)"
-        android:textColor="#1E293B"
-        android:textSize="13sp" />
-
-    <ProgressBar
-        android:id="@+id/widget_progress_bar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="8dp"
-        android:layout_marginTop="8dp"
-        android:max="100"
-        android:progress="50"
-        android:progressTint="#2D9CFF" />
-
-    <Button
-        android:id="@+id/widget_btn_quick_add"
-        android:layout_width="match_parent"
-        android:layout_height="36dp"
-        android:layout_marginTop="10dp"
-        android:background="#2D9CFF"
-        android:text="+ ۱ لیوان آب خوردم"
-        android:textColor="#FFFFFF"
-        android:textSize="12sp"
-        android:textStyle="bold" />
 </LinearLayout>

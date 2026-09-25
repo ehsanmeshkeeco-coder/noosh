@@ -59,7 +59,7 @@ fun QuickAddSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
         Column(
@@ -72,7 +72,7 @@ fun QuickAddSheet(
                 text = stringResource(R.string.quick_add_title),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF0F172A)
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -89,12 +89,12 @@ fun QuickAddSheet(
                         .testTag("preset_button_$ml"),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = if (isSelected) NooshSubtleBlue else Color.Transparent,
-                        contentColor = if (isSelected) NooshPrimary else Color(0xFF334155)
+                        containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
+                        contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
                     ),
                     border = BorderStroke(
                         width = if (isSelected) 2.dp else 1.dp,
-                        color = if (isSelected) NooshPrimary else Color(0xFFE2E8F0)
+                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
                     )
                 ) {
                     Row(
@@ -105,13 +105,14 @@ fun QuickAddSheet(
                         Text(
                             text = label,
                             fontSize = 14.sp,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                         )
                         Text(
                             text = "${DateTimeUtils.toPersianDigits(ml.toString())} میلی‌لیتر",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (isSelected) NooshPrimary else Color(0xFF64748B)
+                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -124,7 +125,7 @@ fun QuickAddSheet(
                 text = "مقدار دقیق: ${DateTimeUtils.toPersianDigits(selectedAmount.toString())} میلی‌لیتر",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color(0xFF475569)
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Slider(
@@ -133,9 +134,9 @@ fun QuickAddSheet(
                 valueRange = 50f..1000f,
                 steps = 18,
                 colors = SliderDefaults.colors(
-                    thumbColor = NooshPrimary,
-                    activeTrackColor = NooshPrimary,
-                    inactiveTrackColor = NooshSubtleBlue
+                    thumbColor = MaterialTheme.colorScheme.primary,
+                    activeTrackColor = MaterialTheme.colorScheme.primary,
+                    inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant
                 ),
                 modifier = Modifier.testTag("amount_slider")
             )
@@ -147,7 +148,7 @@ fun QuickAddSheet(
                 text = stringResource(R.string.smart_reminder_prompt),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF0F172A)
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -168,8 +169,8 @@ fun QuickAddSheet(
                         onClick = { selectedRescheduleMinutes = minutes },
                         label = { Text(text = label, fontSize = 12.sp) },
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = NooshPrimary,
-                            selectedLabelColor = Color.White
+                            selectedContainerColor = MaterialTheme.colorScheme.primary,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary
                         )
                     )
                 }
@@ -189,14 +190,14 @@ fun QuickAddSheet(
                     .fillMaxWidth()
                     .height(52.dp)
                     .testTag("submit_water_intake_button"),
-                colors = ButtonDefaults.buttonColors(containerColor = NooshPrimary),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 shape = RoundedCornerShape(14.dp)
             ) {
                 Text(
                     text = "ثبت ${DateTimeUtils.toPersianDigits(selectedAmount.toString())} میلی‌لیتر آب 💧",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
             }
 

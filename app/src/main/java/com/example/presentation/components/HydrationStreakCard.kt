@@ -100,9 +100,12 @@ fun HydrationStreakCard(
         label = "flameScale"
     )
 
+    val isDarkTheme = MaterialTheme.colorScheme.surface.let { (it.red * 0.299f + it.green * 0.587f + it.blue * 0.114f) < 0.5f }
+
     Card(
         shape = RoundedCornerShape(22.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         modifier = modifier
             .fillMaxWidth()
@@ -142,7 +145,7 @@ fun HydrationStreakCard(
                             text = "زنجیره هیدراتاسیون و مدال‌ها",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF0F172A)
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
                             text = StreakBadgeManager.getStreakTierTitle(streakInfo.currentStreak),
@@ -160,7 +163,7 @@ fun HydrationStreakCard(
                     Icon(
                         imageVector = Icons.Default.Info,
                         contentDescription = "قوانین زنجیره",
-                        tint = Color(0xFF94A3B8),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -169,20 +172,31 @@ fun HydrationStreakCard(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Main Streak Hero Banner
+            val bannerGradient = if (isDarkTheme) {
+                Brush.horizontalGradient(
+                    listOf(
+                        Color(0xFF3B1A0A),
+                        Color(0xFF2E1308),
+                        Color(0xFF1E1006)
+                    )
+                )
+            } else {
+                Brush.horizontalGradient(
+                    listOf(
+                        Color(0xFFFFF7ED),
+                        Color(0xFFFFEDD5),
+                        Color(0xFFFEF3C7)
+                    )
+                )
+            }
+            val bannerBorder = if (isDarkTheme) Color(0xFF9A3412).copy(alpha = 0.5f) else Color(0xFFFED7AA)
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(18.dp))
-                    .background(
-                        Brush.horizontalGradient(
-                            listOf(
-                                Color(0xFFFFF7ED),
-                                Color(0xFFFFEDD5),
-                                Color(0xFFFEF3C7)
-                            )
-                        )
-                    )
-                    .border(1.dp, Color(0xFFFED7AA), RoundedCornerShape(18.dp))
+                    .background(bannerGradient)
+                    .border(1.dp, bannerBorder, RoundedCornerShape(18.dp))
                     .padding(16.dp)
             ) {
                 Column {
@@ -195,7 +209,7 @@ fun HydrationStreakCard(
                             Text(
                                 text = "زنجیره فعال جاری",
                                 fontSize = 11.sp,
-                                color = Color(0xFF9A3412),
+                                color = if (isDarkTheme) Color(0xFFFDBA74) else Color(0xFF9A3412),
                                 fontWeight = FontWeight.Medium
                             )
                             Row(verticalAlignment = Alignment.Bottom) {
@@ -203,14 +217,14 @@ fun HydrationStreakCard(
                                     text = DateTimeUtils.toPersianDigits(streakInfo.currentStreak.toString()),
                                     fontSize = 32.sp,
                                     fontWeight = FontWeight.Black,
-                                    color = Color(0xFFC2410C)
+                                    color = if (isDarkTheme) Color(0xFFFB923C) else Color(0xFFC2410C)
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
                                     text = "روز مداوم",
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFFEA580C),
+                                    color = if (isDarkTheme) Color(0xFFFED7AA) else Color(0xFFEA580C),
                                     modifier = Modifier.padding(bottom = 6.dp)
                                 )
                             }
@@ -220,7 +234,10 @@ fun HydrationStreakCard(
                         Column(horizontalAlignment = Alignment.End) {
                             Box(
                                 modifier = Modifier
-                                    .background(Color.White.copy(alpha = 0.9f), RoundedCornerShape(10.dp))
+                                    .background(
+                                        if (isDarkTheme) MaterialTheme.colorScheme.surfaceVariant else Color.White.copy(alpha = 0.9f),
+                                        RoundedCornerShape(10.dp)
+                                    )
                                     .padding(horizontal = 10.dp, vertical = 5.dp)
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -235,7 +252,7 @@ fun HydrationStreakCard(
                                         text = "رکورد: ${DateTimeUtils.toPersianDigits(streakInfo.longestStreak.toString())} روز",
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF78350F)
+                                        color = if (isDarkTheme) Color(0xFFFDE68A) else Color(0xFF78350F)
                                     )
                                 }
                             }
@@ -245,7 +262,11 @@ fun HydrationStreakCard(
                             Box(
                                 modifier = Modifier
                                     .background(
-                                        if (graceDayEnabled) Color(0xFFDCFCE7) else Color(0xFFF1F5F9),
+                                        if (graceDayEnabled) {
+                                            if (isDarkTheme) Color(0xFF064E3B) else Color(0xFFDCFCE7)
+                                        } else {
+                                            MaterialTheme.colorScheme.surfaceVariant
+                                        },
                                         RoundedCornerShape(10.dp)
                                     )
                                     .padding(horizontal = 8.dp, vertical = 4.dp)
@@ -254,7 +275,7 @@ fun HydrationStreakCard(
                                     Icon(
                                         imageVector = Icons.Default.Shield,
                                         contentDescription = null,
-                                        tint = if (graceDayEnabled) SuccessGreen else Color(0xFF94A3B8),
+                                        tint = if (graceDayEnabled) SuccessGreen else MaterialTheme.colorScheme.onSurfaceVariant,
                                         modifier = Modifier.size(13.dp)
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
@@ -262,7 +283,11 @@ fun HydrationStreakCard(
                                         text = if (graceDayEnabled) "روز بخشش فعال" else "روز بخشش خاموش",
                                         fontSize = 10.sp,
                                         fontWeight = FontWeight.SemiBold,
-                                        color = if (graceDayEnabled) Color(0xFF166534) else Color(0xFF64748B)
+                                        color = if (graceDayEnabled) {
+                                            if (isDarkTheme) Color(0xFF6EE7B7) else Color(0xFF166534)
+                                        } else {
+                                            MaterialTheme.colorScheme.onSurfaceVariant
+                                        }
                                     )
                                 }
                             }
@@ -277,7 +302,7 @@ fun HydrationStreakCard(
                             text = "تنها ${DateTimeUtils.toPersianDigits(daysRemaining.toString())} روز تا کسب مدال «${nextMilestone.title}» (${nextMilestone.iconEmoji})",
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF9A3412)
+                            color = if (isDarkTheme) Color(0xFFFDBA74) else Color(0xFF9A3412)
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         LinearProgressIndicator(
@@ -287,7 +312,7 @@ fun HydrationStreakCard(
                                 .height(6.dp)
                                 .clip(CircleShape),
                             color = FlameOrange,
-                            trackColor = Color(0xFFFED7AA)
+                            trackColor = if (isDarkTheme) Color(0xFF431407) else Color(0xFFFED7AA)
                         )
                     }
                 }
@@ -305,14 +330,14 @@ fun HydrationStreakCard(
                     text = "نشان‌ها و دستاوردهای هیدراتاسیون",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1E293B)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Text(
                     text = "${DateTimeUtils.toPersianDigits(unlockedCount.toString())} از ${DateTimeUtils.toPersianDigits(badges.size.toString())} مدال",
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
-                    color = NooshPrimary
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
 
@@ -361,15 +386,26 @@ private fun BadgeItemView(
         BadgeTier.DIAMOND -> Color(0xFF06B6D4)
     }
 
+    val isDarkTheme = MaterialTheme.colorScheme.surface.let { (it.red * 0.299f + it.green * 0.587f + it.blue * 0.114f) < 0.5f }
+
     val cardBg = if (badge.isUnlocked) {
-        when (badge.tier) {
-            BadgeTier.BRONZE -> Color(0xFFFFFBEB)
-            BadgeTier.SILVER -> Color(0xFFF8FAFC)
-            BadgeTier.GOLD -> Color(0xFFFEF3C7)
-            BadgeTier.DIAMOND -> Color(0xFFECFEFF)
+        if (isDarkTheme) {
+            when (badge.tier) {
+                BadgeTier.BRONZE -> Color(0xFF2E1A0F)
+                BadgeTier.SILVER -> Color(0xFF1E293B)
+                BadgeTier.GOLD -> Color(0xFF2E230B)
+                BadgeTier.DIAMOND -> Color(0xFF0C2A3A)
+            }
+        } else {
+            when (badge.tier) {
+                BadgeTier.BRONZE -> Color(0xFFFFFBEB)
+                BadgeTier.SILVER -> Color(0xFFF8FAFC)
+                BadgeTier.GOLD -> Color(0xFFFEF3C7)
+                BadgeTier.DIAMOND -> Color(0xFFECFEFF)
+            }
         }
     } else {
-        Color(0xFFF8FAFC)
+        if (isDarkTheme) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f) else Color(0xFFF8FAFC)
     }
 
     Card(
@@ -377,7 +413,7 @@ private fun BadgeItemView(
         colors = CardDefaults.cardColors(containerColor = cardBg),
         border = BorderStroke(
             width = if (badge.isUnlocked) 1.5.dp else 1.dp,
-            color = if (badge.isUnlocked) tierColor.copy(alpha = 0.8f) else Color(0xFFE2E8F0)
+            color = if (badge.isUnlocked) tierColor.copy(alpha = 0.8f) else MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
         ),
         modifier = Modifier
             .width(76.dp)
@@ -395,7 +431,7 @@ private fun BadgeItemView(
                     .size(40.dp)
                     .clip(CircleShape)
                     .background(
-                        if (badge.isUnlocked) tierColor.copy(alpha = 0.2f) else Color(0xFFE2E8F0)
+                        if (badge.isUnlocked) tierColor.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surfaceVariant
                     ),
                 contentAlignment = Alignment.Center
             ) {
@@ -427,13 +463,13 @@ private fun BadgeItemView(
                             .align(Alignment.BottomEnd)
                             .size(14.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFF64748B)),
+                            .background(MaterialTheme.colorScheme.onSurfaceVariant),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.Lock,
                             contentDescription = null,
-                            tint = Color.White,
+                            tint = MaterialTheme.colorScheme.surface,
                             modifier = Modifier.size(9.dp)
                         )
                     }
@@ -446,7 +482,7 @@ private fun BadgeItemView(
                 text = badge.title,
                 fontSize = 10.sp,
                 fontWeight = if (badge.isUnlocked) FontWeight.Bold else FontWeight.Medium,
-                color = if (badge.isUnlocked) Color(0xFF0F172A) else Color(0xFF64748B),
+                color = if (badge.isUnlocked) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 maxLines = 1
             )
@@ -456,7 +492,7 @@ private fun BadgeItemView(
             Text(
                 text = "${DateTimeUtils.toPersianDigits(badge.requiredDays.toString())} روز",
                 fontSize = 9.sp,
-                color = if (badge.isUnlocked) tierColor else Color(0xFF94A3B8),
+                color = if (badge.isUnlocked) tierColor else MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Bold
             )
         }
@@ -478,7 +514,8 @@ private fun BadgeDetailDialog(
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = RoundedCornerShape(26.dp),
-            color = Color.White,
+            color = MaterialTheme.colorScheme.surface,
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)),
             modifier = Modifier.fillMaxWidth(0.92f)
         ) {
             Column(
@@ -505,7 +542,7 @@ private fun BadgeDetailDialog(
                     text = badge.title,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Black,
-                    color = Color(0xFF0F172A)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Text(
@@ -520,7 +557,7 @@ private fun BadgeDetailDialog(
                 Text(
                     text = badge.subtitle,
                     fontSize = 13.sp,
-                    color = Color(0xFF475569),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
                 )
 
@@ -531,7 +568,7 @@ private fun BadgeDetailDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(14.dp))
-                        .background(if (badge.isUnlocked) Color(0xFFDCFCE7) else Color(0xFFF1F5F9))
+                        .background(if (badge.isUnlocked) Color(0xFFDCFCE7).copy(alpha = 0.4f) else MaterialTheme.colorScheme.surfaceVariant)
                         .padding(12.dp)
                 ) {
                     Row(
@@ -543,14 +580,14 @@ private fun BadgeDetailDialog(
                             text = if (badge.isUnlocked) "وضعیت: کسب شده ✓" else "وضعیت: در مسیر پیشرفت",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (badge.isUnlocked) Color(0xFF166534) else Color(0xFF475569)
+                            color = if (badge.isUnlocked) SuccessGreen else MaterialTheme.colorScheme.onSurfaceVariant
                         )
 
                         Text(
                             text = "${DateTimeUtils.toPersianDigits(badge.currentProgress.toString())} / ${DateTimeUtils.toPersianDigits(badge.requiredDays.toString())} روز",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Black,
-                            color = if (badge.isUnlocked) Color(0xFF166534) else NooshPrimary
+                            color = if (badge.isUnlocked) SuccessGreen else MaterialTheme.colorScheme.primary
                         )
                     }
                 }
@@ -560,8 +597,8 @@ private fun BadgeDetailDialog(
                 // Health Benefit Card
                 Card(
                     shape = RoundedCornerShape(14.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF0FDF4)),
-                    border = BorderStroke(1.dp, Color(0xFFBBF7D0)),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
@@ -569,13 +606,13 @@ private fun BadgeDetailDialog(
                             text = "💡 فواید تندرستی این سطح:",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF166534)
+                            color = MaterialTheme.colorScheme.primary
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = badge.healthBenefit,
                             fontSize = 11.sp,
-                            color = Color(0xFF14532D),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             lineHeight = 16.sp
                         )
                     }
@@ -586,10 +623,10 @@ private fun BadgeDetailDialog(
                 Button(
                     onClick = onDismiss,
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = NooshPrimary),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("بسیار عالی", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    Text("بسیار عالی", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
                 }
             }
         }
@@ -601,7 +638,8 @@ private fun StreakRulesDialog(onDismiss: () -> Unit) {
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = RoundedCornerShape(26.dp),
-            color = Color.White,
+            color = MaterialTheme.colorScheme.surface,
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)),
             modifier = Modifier.fillMaxWidth(0.92f)
         ) {
             Column(
@@ -618,10 +656,10 @@ private fun StreakRulesDialog(onDismiss: () -> Unit) {
                         text = "راهنمای زنجیره و روز بخشش",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF0F172A)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     IconButton(onClick = onDismiss, modifier = Modifier.size(28.dp)) {
-                        Icon(Icons.Default.Info, contentDescription = null, tint = NooshPrimary)
+                        Icon(Icons.Default.Info, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                     }
                 }
 
@@ -633,7 +671,7 @@ private fun StreakRulesDialog(onDismiss: () -> Unit) {
                             "• سپر روز بخشش (Grace Day): اگر در یک روز نتوانید به هدف کامل برسید، سپر بخشش فعال شده و زنجیره شما شکسته نمی‌شود تا با آرامش ادامه دهید.\n" +
                             "• با نوشیدن منظم و پایبندی، بدن شما بهترین عادت سلامتی را می‌سازد.",
                     fontSize = 12.sp,
-                    color = Color(0xFF475569),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     lineHeight = 20.sp
                 )
 
@@ -642,10 +680,10 @@ private fun StreakRulesDialog(onDismiss: () -> Unit) {
                 Button(
                     onClick = onDismiss,
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = NooshPrimary),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("متوجه شدم", fontSize = 13.sp)
+                    Text("متوجه شدم", fontSize = 13.sp, color = MaterialTheme.colorScheme.onPrimary)
                 }
             }
         }

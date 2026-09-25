@@ -28,7 +28,10 @@ data class UserProfileEntity(
     val gender: String = "male",
     val activityLevel: String = "moderate",
     val climate: String = "temperate",
-    val onboardingCompleted: Boolean = false
+    val onboardingCompleted: Boolean = false,
+    val totalXp: Int = 0,
+    val level: Int = 1,
+    val themeMode: String = "system"
 ) {
     fun toDomain(): UserProfile = UserProfile(
         id = id,
@@ -53,7 +56,10 @@ data class UserProfileEntity(
         gender = gender,
         activityLevel = activityLevel,
         climate = climate,
-        onboardingCompleted = onboardingCompleted
+        onboardingCompleted = onboardingCompleted,
+        totalXp = totalXp,
+        level = level,
+        themeMode = themeMode
     )
 
     companion object {
@@ -80,7 +86,10 @@ data class UserProfileEntity(
             gender = domain.gender,
             activityLevel = domain.activityLevel,
             climate = domain.climate,
-            onboardingCompleted = domain.onboardingCompleted
+            onboardingCompleted = domain.onboardingCompleted,
+            totalXp = domain.totalXp,
+            level = domain.level,
+            themeMode = domain.themeMode
         )
     }
 }

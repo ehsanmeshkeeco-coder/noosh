@@ -20,16 +20,22 @@ class WidgetActionReceiver : BroadcastReceiver() {
             if (app != null) {
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
-                        app.addWaterIntakeUseCase(
+                        val result = app.addWaterIntakeUseCase(
                             amountMl = amountMl,
                             source = "widget"
                         )
                         WaterProgressWidgetProvider.updateAllWidgets(context)
 
+                        val msg = if (result.xpEarned > 0) {
+                            "${com.example.core.util.DateTimeUtils.toPersianDigits(amountMl)} میلی‌لیتر آب ثبت شد (+${com.example.core.util.DateTimeUtils.toPersianDigits(result.xpEarned)} امتیاز ✨) 💧"
+                        } else {
+                            "${com.example.core.util.DateTimeUtils.toPersianDigits(amountMl)} میلی‌لیتر آب ثبت شد 💧"
+                        }
+
                         launch(Dispatchers.Main) {
                             Toast.makeText(
                                 context,
-                                "$amountMl میلی‌لیتر آب ثبت شد 💧",
+                                msg,
                                 Toast.LENGTH_SHORT
                             ).show()
                         }

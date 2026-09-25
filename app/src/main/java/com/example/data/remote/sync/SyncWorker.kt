@@ -57,13 +57,18 @@ class SyncWorker(
             }
         } catch (e: CancellationException) {
             Log.d(TAG, "SyncWorker coroutine cancelled: ${e.message}")
-            throw e
+            Result.retry()
         } catch (e: Exception) {
-            Log.e(TAG, "SyncWorker failed with exception: ${e.message}", e)
-            if (runAttemptCount < MAX_ATTEMPTS) {
+            if (e is CancellationException) {
+                Log.d(TAG, "SyncWorker coroutine cancelled: ${e.message}")
                 Result.retry()
             } else {
-                Result.failure()
+                Log.e(TAG, "SyncWorker failed with exception: ${e.message}", e)
+                if (runAttemptCount < MAX_ATTEMPTS) {
+                    Result.retry()
+                } else {
+                    Result.failure()
+                }
             }
         }
     }

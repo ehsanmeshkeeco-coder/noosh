@@ -51,6 +51,8 @@ object DateTimeUtils {
         }
     }
 
+    fun toPersianDigits(input: Number): String = toPersianDigits(input.toString())
+
     fun toPersianDigits(input: String): String {
         val persianDigits = charArrayOf('۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹')
         val sb = StringBuilder()

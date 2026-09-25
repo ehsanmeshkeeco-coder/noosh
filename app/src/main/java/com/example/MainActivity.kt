@@ -94,7 +94,8 @@ class MainActivity : ComponentActivity() {
             reminderScheduler = app.reminderScheduler,
             healthCompanionManager = app.healthCompanionManager,
             fcmTokenManager = app.fcmTokenManager,
-            supabaseClient = app.supabaseClient
+            supabaseClient = app.supabaseClient,
+            gamificationRepository = app.gamificationRepository
         )
     }
 
@@ -103,7 +104,15 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            NooshTheme {
+            val dashboardState by viewModel.dashboardState.collectAsState()
+            val themeMode = dashboardState?.profile?.themeMode ?: "system"
+            val isDark = when (themeMode) {
+                "dark" -> true
+                "light" -> false
+                else -> androidx.compose.foundation.isSystemInDarkTheme()
+            }
+
+            NooshTheme(darkTheme = isDark) {
                 RequestNotificationPermission()
                 MainAppScaffold(viewModel = viewModel)
             }
@@ -196,7 +205,7 @@ fun MainAppScaffold(viewModel: MainViewModel) {
             bottomBar = {
                 if (showBottomBar) {
                     NavigationBar(
-                        containerColor = Color.White,
+                        containerColor = MaterialTheme.colorScheme.surface,
                         tonalElevation = 4.dp,
                         modifier = Modifier
                             .testTag("bottom_navigation_bar")
@@ -224,11 +233,13 @@ fun MainAppScaffold(viewModel: MainViewModel) {
                                     Icon(
                                         imageVector = if (isSelected) screen.selectedIcon else screen.unselectedIcon,
                                         contentDescription = stringResource(screen.titleResId),
-                                        tint = if (isSelected) NooshPrimary else Color(0xFF94A3B8)
+                                        tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 },
                                 colors = NavigationBarItemDefaults.colors(
-                                    indicatorColor = Color(0xFFE0F2FE)
+                                    indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             )
                         }
@@ -236,9 +247,12 @@ fun MainAppScaffold(viewModel: MainViewModel) {
                 }
             }
         ) { innerPadding ->
+            val isAuthenticated = authState is com.example.data.remote.clerk.AuthState.Authenticated
+            val startDest = if (isAuthenticated) Screen.Dashboard.route else Screen.Auth.route
+
             NavHost(
                 navController = navController,
-                startDestination = Screen.Dashboard.route,
+                startDestination = startDest,
                 modifier = Modifier.padding(innerPadding)
             ) {
                 composable(Screen.Dashboard.route) {
@@ -298,27 +312,23 @@ fun MainAppScaffold(viewModel: MainViewModel) {
                 }
 
                 composable(Screen.Auth.route) {
+                    val activity = androidx.compose.ui.platform.LocalContext.current as? android.app.Activity
                     AuthScreen(
                         viewModel = viewModel,
                         onNavigateBack = {
-                            if (!navController.popBackStack()) {
-                                navController.navigate(Screen.Dashboard.route) {
-                                    popUpTo(0) { inclusive = true }
-                                }
+                            if (authState is com.example.data.remote.clerk.AuthState.Authenticated) {
+                                navController.popBackStack()
+                            } else {
+                                activity?.finish()
                             }
                         },
                         onAuthSuccess = {
                             // After login, check if onboarding is needed
                             val profile = dashboardState?.profile
                             val isCompleted = viewModel.onboardingCompletedInSession.value || (profile?.onboardingCompleted == true)
-                            if (!isCompleted) {
-                                navController.navigate(Screen.Onboarding.route) {
-                                    popUpTo(Screen.Auth.route) { inclusive = true }
-                                }
-                            } else {
-                                navController.navigate(Screen.Dashboard.route) {
-                                    popUpTo(Screen.Auth.route) { inclusive = true }
-                                }
+                            val nextRoute = if (!isCompleted) Screen.Onboarding.route else Screen.Dashboard.route
+                            navController.navigate(nextRoute) {
+                                popUpTo(Screen.Auth.route) { inclusive = true }
                             }
                         }
                     )
@@ -348,8 +358,8 @@ fun MainAppScaffold(viewModel: MainViewModel) {
         if (isAlarmRinging) {
             Card(
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFEFF6FF)),
-                border = BorderStroke(1.dp, Color(0xFF38BDF8)),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)),
                 elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -371,7 +381,7 @@ fun MainAppScaffold(viewModel: MainViewModel) {
                         Icon(
                             imageVector = Icons.Default.Notifications,
                             contentDescription = null,
-                            tint = NooshPrimary,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(24.dp)
                         )
                         Spacer(modifier = Modifier.width(10.dp))
@@ -380,12 +390,12 @@ fun MainAppScaffold(viewModel: MainViewModel) {
                                 text = "زنگ یادآور آب فعال است 💧",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 13.sp,
-                                color = Color(0xFF0F172A)
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
                                 text = "برای توقف زنگ و ثبت آب لمس کنید",
                                 fontSize = 11.sp,
-                                color = Color(0xFF64748B)
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -394,10 +404,10 @@ fun MainAppScaffold(viewModel: MainViewModel) {
                             viewModel.stopAlarmService()
                             viewModel.addWater(250)
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = NooshPrimary),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(10.dp)
                     ) {
-                        Text("نوشیدم (+۲۵۰)", fontSize = 11.sp, color = Color.White)
+                        Text("نوشیدم (+۲۵۰)", fontSize = 11.sp, color = MaterialTheme.colorScheme.onPrimary)
                     }
                 }
             }

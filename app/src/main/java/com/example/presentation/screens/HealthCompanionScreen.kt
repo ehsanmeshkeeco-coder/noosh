@@ -65,10 +65,8 @@ import com.example.domain.model.HealthCompanionConnection
 import com.example.domain.model.HealthCompanionStatus
 import com.example.domain.model.HealthEventType
 import com.example.domain.model.HealthStatusEvaluation
-import com.example.presentation.theme.NooshBackground
 import com.example.presentation.theme.NooshPrimary
 import com.example.presentation.theme.NooshSubtleBlue
-import com.example.presentation.theme.NooshSurface
 import com.example.presentation.viewmodel.MainViewModel
 
 @Composable
@@ -88,7 +86,7 @@ fun HealthCompanionScreen(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .background(NooshBackground)
+            .background(MaterialTheme.colorScheme.background)
             .padding(horizontal = 16.dp),
         contentPadding = PaddingValues(top = 16.dp, bottom = 96.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -108,14 +106,14 @@ fun HealthCompanionScreen(
                         text = "همراه سلامت و اتاق مراقبت",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1E293B)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "اشتراک وضعیت هیدراتاسیون با همراه، پزشک یا اعضای خانواده از طریق اتاق امن",
                     fontSize = 12.sp,
-                    color = Color(0xFF64748B)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -132,7 +130,8 @@ fun HealthCompanionScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = NooshSurface),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
                 elevation = CardDefaults.cardElevation(2.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -140,13 +139,13 @@ fun HealthCompanionScreen(
                         text = "اتاق همراه سلامت و کد دعوت",
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1E293B)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "می‌توانید برای همراه خود یک اتاق بسازید و کد ۶ رقمی را ارسال کنید، یا با داشتن کد دعوت به اتاق همراه ملحق شوید.",
                         fontSize = 12.sp,
-                        color = Color(0xFF64748B),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         lineHeight = 18.sp
                     )
 
@@ -307,7 +306,7 @@ fun HealthCompanionScreen(
                 text = "سوابق هشدارهای سلامت",
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF1E293B),
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(top = 8.dp)
             )
         }
@@ -317,13 +316,14 @@ fun HealthCompanionScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = NooshSurface)
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
                 ) {
                     Box(modifier = Modifier.padding(24.dp).fillMaxWidth(), contentAlignment = Alignment.Center) {
                         Text(
                             text = "هنوز رویدادی ثبت نشده است. سوابق مصرف آب به صورت خودکار در این بخش ثبت می‌شود.",
                             fontSize = 12.sp,
-                            color = Color(0xFF94A3B8)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -363,7 +363,8 @@ private fun CompanionStatusCard(status: HealthCompanionStatus) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = NooshSurface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -376,7 +377,7 @@ private fun CompanionStatusCard(status: HealthCompanionStatus) {
                     text = "وضعیت جاری من",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF334155)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Box(
                     modifier = Modifier
@@ -434,11 +435,11 @@ private fun CompanionStatusCard(status: HealthCompanionStatus) {
 @Composable
 private fun MetricMiniItem(label: String, value: String, sub: String) {
     Column(modifier = Modifier.width(150.dp)) {
-        Text(text = label, fontSize = 11.sp, color = Color(0xFF64748B))
+        Text(text = label, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(modifier = Modifier.height(2.dp))
-        Text(text = value, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1E293B))
+        Text(text = value, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
         Spacer(modifier = Modifier.height(2.dp))
-        Text(text = sub, fontSize = 10.sp, color = Color(0xFF94A3B8))
+        Text(text = sub, fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f))
     }
 }
 
@@ -451,7 +452,8 @@ private fun CompanionConnectionCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = NooshSurface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -459,13 +461,13 @@ private fun CompanionConnectionCard(
                 text = "تنظیمات حریم خصوصی و اعلان‌های همراه",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF1E293B)
+                color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "سطح حساسیت ارسال رویدادها را برای همراه تعیین کنید.",
                 fontSize = 11.sp,
-                color = Color(0xFF64748B)
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -505,7 +507,7 @@ private fun CompanionConnectionCard(
             Text(
                 text = "سیاست فیلتر رویدادها:",
                 fontSize = 11.sp,
-                color = Color(0xFF64748B)
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(6.dp))
             Row(
@@ -537,14 +539,14 @@ private fun PolicyChip(title: String, selected: Boolean, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(8.dp))
-            .background(if (selected) NooshPrimary else Color(0xFFF1F5F9))
+            .background(if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant)
             .clickable(onClick = onClick)
             .padding(horizontal = 10.dp, vertical = 6.dp)
     ) {
         Text(
             text = title,
             fontSize = 11.sp,
-            color = if (selected) Color.White else Color(0xFF475569),
+            color = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
             fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
         )
     }
@@ -579,7 +581,8 @@ private fun HealthEventItem(event: HealthAlertEvent) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = NooshSurface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)),
         elevation = CardDefaults.cardElevation(1.dp)
     ) {
         Row(
@@ -601,7 +604,7 @@ private fun HealthEventItem(event: HealthAlertEvent) {
                         text = typeTitle,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1E293B)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Box(
@@ -618,7 +621,7 @@ private fun HealthEventItem(event: HealthAlertEvent) {
                 Text(
                     text = "مصرف: ${DateTimeUtils.toPersianDigits(event.currentWaterMl.toString())} از ${DateTimeUtils.toPersianDigits(event.dailyGoalMl.toString())} میلی‌لیتر (${DateTimeUtils.toPersianDigits(event.goalPercentage.toString())}٪)",
                     fontSize = 11.sp,
-                    color = Color(0xFF64748B)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
@@ -633,7 +636,7 @@ private fun HealthEventItem(event: HealthAlertEvent) {
                 Text(
                     text = DateTimeUtils.toPersianDigits(event.date),
                     fontSize = 10.sp,
-                    color = Color(0xFF94A3B8)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                 )
             }
         }

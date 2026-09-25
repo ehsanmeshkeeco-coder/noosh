@@ -84,7 +84,7 @@ fun WeeklyAnalyticsScreen(
             Text(
                 text = "تحلیل روند هیدراتاسیون در ۷ روز گذشته",
                 fontSize = 13.sp,
-                color = Color(0xFF64748B),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 2.dp)
@@ -130,7 +130,13 @@ fun WeeklyAnalyticsScreen(
             // Positive trend banner
             Card(
                 shape = RoundedCornerShape(14.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFECFDF5)),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.7f)
+                ),
+                border = androidx.compose.foundation.BorderStroke(
+                    1.dp,
+                    MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                ),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
@@ -142,7 +148,7 @@ fun WeeklyAnalyticsScreen(
                     Icon(
                         imageVector = Icons.Default.TrendingUp,
                         contentDescription = null,
-                        tint = SuccessGreen,
+                        tint = MaterialTheme.colorScheme.tertiary,
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.width(10.dp))
@@ -150,7 +156,7 @@ fun WeeklyAnalyticsScreen(
                         text = "مصرف آب شما ۱۲٪ نسبت به هفته گذشته افزایش داشته است. این روند به سلامت کلیه‌ها و شادابی پوست شما کمک می‌کند 💧",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Medium,
-                        color = Color(0xFF065F46)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -163,18 +169,22 @@ fun WeeklyAnalyticsScreen(
 
             Card(
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = androidx.compose.foundation.BorderStroke(
+                    1.dp,
+                    MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 TabRow(
                     selectedTabIndex = selectedChartMode,
                     containerColor = Color.Transparent,
-                    contentColor = NooshPrimary,
+                    contentColor = MaterialTheme.colorScheme.primary,
                     indicator = { tabPositions ->
                         TabRowDefaults.SecondaryIndicator(
                             modifier = Modifier.tabIndicatorOffset(tabPositions[selectedChartMode]),
-                            color = NooshPrimary,
+                            color = MaterialTheme.colorScheme.primary,
                             height = 3.dp
                         )
                     }
@@ -184,7 +194,7 @@ fun WeeklyAnalyticsScreen(
                         onClick = { selectedChartMode = 0 },
                         text = {
                             Text(
-                                text = "نمودار هوشمند Recharts",
+                                text = "نمودار روند خطی",
                                 fontWeight = if (selectedChartMode == 0) FontWeight.Bold else FontWeight.Normal,
                                 fontSize = 13.sp
                             )
@@ -195,7 +205,7 @@ fun WeeklyAnalyticsScreen(
                         onClick = { selectedChartMode = 1 },
                         text = {
                             Text(
-                                text = "نمودار ستونی بومی",
+                                text = "نمودار ستونی",
                                 fontWeight = if (selectedChartMode == 1) FontWeight.Bold else FontWeight.Normal,
                                 fontSize = 13.sp
                             )
@@ -241,7 +251,7 @@ fun WeeklyAnalyticsScreen(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "مشاهده در صفحه اختصاصی نمودار خطی Recharts ↗",
+                    text = "مشاهده صفحه اختصاصی روند هفتگی ↗",
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     color = NooshPrimary
@@ -278,12 +288,16 @@ private fun MetricCard(
     title: String,
     value: String,
     subtitle: String,
-    valueColor: Color = NooshPrimary,
+    valueColor: Color = MaterialTheme.colorScheme.primary,
     modifier: Modifier = Modifier
 ) {
     Card(
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp,
+            MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         modifier = modifier
     ) {
@@ -296,7 +310,7 @@ private fun MetricCard(
             Text(
                 text = title,
                 fontSize = 11.sp,
-                color = Color(0xFF64748B),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Medium
             )
             Spacer(modifier = Modifier.height(4.dp))
@@ -310,7 +324,7 @@ private fun MetricCard(
             Text(
                 text = subtitle,
                 fontSize = 10.sp,
-                color = Color(0xFF94A3B8)
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
             )
         }
     }
@@ -324,7 +338,11 @@ private fun DailyDetailCard(day: DayIntake) {
 
     Card(
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp,
+            MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+        ),
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
@@ -341,13 +359,16 @@ private fun DailyDetailCard(day: DayIntake) {
                     modifier = Modifier
                         .size(36.dp)
                         .clip(CircleShape)
-                        .background(if (isGoalReached) Color(0xFFDCFCE7) else NooshSubtleBlue),
+                        .background(
+                            if (isGoalReached) Color(0xFF10B981).copy(alpha = 0.2f)
+                            else MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
+                        ),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = if (isGoalReached) Icons.Default.CheckCircle else Icons.Default.Info,
                         contentDescription = null,
-                        tint = if (isGoalReached) SuccessGreen else NooshPrimary,
+                        tint = if (isGoalReached) Color(0xFF10B981) else MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -359,12 +380,12 @@ private fun DailyDetailCard(day: DayIntake) {
                         text = if (day.isToday) "${day.dayName} (امروز)" else day.dayName,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = if (day.isToday) NooshPrimary else Color(0xFF0F172A)
+                        color = if (day.isToday) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = "${DateTimeUtils.toPersianDigits(glasses.toString())} از ${DateTimeUtils.toPersianDigits(goalGlasses.toString())} لیوان",
                         fontSize = 12.sp,
-                        color = Color(0xFF64748B)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -374,13 +395,13 @@ private fun DailyDetailCard(day: DayIntake) {
                     text = "${DateTimeUtils.toPersianDigits(day.amountMl.toString())} میلی‌لیتر",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF0F172A)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = if (isGoalReached) "هدف کامل شد ✓" else "${DateTimeUtils.toPersianDigits((day.goalMl - day.amountMl).toString())} میلی‌لیتر مانده",
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Medium,
-                    color = if (isGoalReached) SuccessGreen else Color(0xFF94A3B8)
+                    color = if (isGoalReached) Color(0xFF10B981) else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }

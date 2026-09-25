@@ -91,7 +91,8 @@ fun HydrationGoalCalculatorDialog(
                 .padding(vertical = 20.dp)
                 .testTag("hydration_calculator_dialog"),
             shape = RoundedCornerShape(28.dp),
-            color = Color.White,
+            color = MaterialTheme.colorScheme.surface,
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
             tonalElevation = 6.dp
         ) {
             LazyColumn(
@@ -111,13 +112,13 @@ fun HydrationGoalCalculatorDialog(
                                 modifier = Modifier
                                     .size(42.dp)
                                     .clip(CircleShape)
-                                    .background(NooshSubtleBlue),
+                                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Calculate,
                                     contentDescription = null,
-                                    tint = NooshPrimary,
+                                    tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(24.dp)
                                 )
                             }
@@ -127,12 +128,12 @@ fun HydrationGoalCalculatorDialog(
                                     text = "محاسبه‌گر هدف هیدراتاسیون",
                                     fontSize = 17.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF0F172A)
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Text(
                                     text = "فرمول علمی شخصی‌سازی آب مصرفی",
                                     fontSize = 11.sp,
-                                    color = Color(0xFF64748B)
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
@@ -144,7 +145,7 @@ fun HydrationGoalCalculatorDialog(
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = "بستن",
-                                tint = Color(0xFF94A3B8)
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -156,8 +157,8 @@ fun HydrationGoalCalculatorDialog(
                 item {
                     Card(
                         shape = RoundedCornerShape(18.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF8FAFC)),
-                        border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
@@ -170,7 +171,7 @@ fun HydrationGoalCalculatorDialog(
                                     text = "وزن بدن",
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF1E293B)
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
 
                                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -180,9 +181,9 @@ fun HydrationGoalCalculatorDialog(
                                         },
                                         modifier = Modifier
                                             .size(32.dp)
-                                            .background(Color.White, CircleShape)
+                                            .background(MaterialTheme.colorScheme.surface, CircleShape)
                                     ) {
-                                        Icon(Icons.Default.Remove, contentDescription = "کاهش", tint = NooshPrimary, modifier = Modifier.size(16.dp))
+                                        Icon(Icons.Default.Remove, contentDescription = "کاهش", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
                                     }
 
                                     Spacer(modifier = Modifier.width(8.dp))
@@ -191,7 +192,7 @@ fun HydrationGoalCalculatorDialog(
                                         text = "${DateTimeUtils.toPersianDigits(weightKg.toInt().toString())} کیلوگرم",
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.Black,
-                                        color = NooshPrimary
+                                        color = MaterialTheme.colorScheme.primary
                                     )
 
                                     Spacer(modifier = Modifier.width(8.dp))
@@ -202,9 +203,9 @@ fun HydrationGoalCalculatorDialog(
                                         },
                                         modifier = Modifier
                                             .size(32.dp)
-                                            .background(Color.White, CircleShape)
+                                            .background(MaterialTheme.colorScheme.surface, CircleShape)
                                     ) {
-                                        Icon(Icons.Default.Add, contentDescription = "افزایش", tint = NooshPrimary, modifier = Modifier.size(16.dp))
+                                        Icon(Icons.Default.Add, contentDescription = "افزایش", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
                                     }
                                 }
                             }
@@ -217,9 +218,9 @@ fun HydrationGoalCalculatorDialog(
                                 valueRange = 40f..140f,
                                 steps = 19,
                                 colors = SliderDefaults.colors(
-                                    thumbColor = NooshPrimary,
-                                    activeTrackColor = NooshPrimary,
-                                    inactiveTrackColor = Color(0xFFCBD5E1)
+                                    thumbColor = MaterialTheme.colorScheme.primary,
+                                    activeTrackColor = MaterialTheme.colorScheme.primary,
+                                    inactiveTrackColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
                                 )
                             )
 
@@ -227,9 +228,9 @@ fun HydrationGoalCalculatorDialog(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text("۴۰ کیلوگرم", fontSize = 10.sp, color = Color(0xFF94A3B8))
-                                Text("پایه: ۳۵ میلی‌لیتر بر هر کیلوگرم", fontSize = 10.sp, color = NooshPrimary, fontWeight = FontWeight.Medium)
-                                Text("۱۴۰ کیلوگرم", fontSize = 10.sp, color = Color(0xFF94A3B8))
+                                Text("۴۰ کیلوگرم", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text("پایه: ۳۵ میلی‌لیتر بر هر کیلوگرم", fontSize = 10.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium)
+                                Text("۱۴۰ کیلوگرم", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }
@@ -243,7 +244,7 @@ fun HydrationGoalCalculatorDialog(
                         text = "سطح فعالیت بدنی روزانه",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1E293B)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(8.dp))
 
@@ -253,11 +254,11 @@ fun HydrationGoalCalculatorDialog(
                             Card(
                                 shape = RoundedCornerShape(14.dp),
                                 colors = CardDefaults.cardColors(
-                                    containerColor = if (isSelected) Color(0xFFEFF6FF) else Color(0xFFF8FAFC)
+                                    containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
                                 ),
                                 border = BorderStroke(
                                     width = if (isSelected) 1.5.dp else 1.dp,
-                                    color = if (isSelected) NooshPrimary else Color(0xFFE2E8F0)
+                                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)
                                 ),
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -281,12 +282,12 @@ fun HydrationGoalCalculatorDialog(
                                                 text = option.titleFa,
                                                 fontSize = 13.sp,
                                                 fontWeight = FontWeight.Bold,
-                                                color = if (isSelected) NooshPrimary else Color(0xFF0F172A)
+                                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                                             )
                                             Text(
                                                 text = option.descriptionFa,
                                                 fontSize = 10.sp,
-                                                color = Color(0xFF64748B)
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
                                             )
                                         }
                                     }
@@ -295,7 +296,7 @@ fun HydrationGoalCalculatorDialog(
                                         text = if (option.additionMl > 0) "+${DateTimeUtils.toPersianDigits(option.additionMl.toString())} ml" else "پایه",
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = if (isSelected) NooshPrimary else Color(0xFF94A3B8)
+                                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                             }
@@ -311,7 +312,7 @@ fun HydrationGoalCalculatorDialog(
                         text = "شرایط اقلیمی و آب‌وهوای محیط",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1E293B)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(8.dp))
 
@@ -324,11 +325,11 @@ fun HydrationGoalCalculatorDialog(
                             Card(
                                 shape = RoundedCornerShape(12.dp),
                                 colors = CardDefaults.cardColors(
-                                    containerColor = if (isSelected) Color(0xFFEFF6FF) else Color(0xFFF8FAFC)
+                                    containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
                                 ),
                                 border = BorderStroke(
                                     width = if (isSelected) 1.5.dp else 1.dp,
-                                    color = if (isSelected) NooshPrimary else Color(0xFFE2E8F0)
+                                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)
                                 ),
                                 modifier = Modifier
                                     .weight(1f)
@@ -346,13 +347,13 @@ fun HydrationGoalCalculatorDialog(
                                         text = climate.titleFa,
                                         fontSize = 11.sp,
                                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                        color = if (isSelected) NooshPrimary else Color(0xFF0F172A),
+                                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
                                         textAlign = TextAlign.Center
                                     )
                                     Text(
                                         text = if (climate.additionMl > 0) "+${DateTimeUtils.toPersianDigits(climate.additionMl.toString())}" else "۰",
                                         fontSize = 9.sp,
-                                        color = if (isSelected) NooshPrimary else Color(0xFF94A3B8)
+                                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                             }
@@ -366,8 +367,8 @@ fun HydrationGoalCalculatorDialog(
                 item {
                     Card(
                         shape = RoundedCornerShape(20.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF0FDF4)),
-                        border = BorderStroke(1.5.dp, Color(0xFF86EFAC)),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)),
+                        border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(
@@ -384,7 +385,7 @@ fun HydrationGoalCalculatorDialog(
                                     Icon(
                                         imageVector = Icons.Default.WaterDrop,
                                         contentDescription = null,
-                                        tint = Color(0xFF16A34A),
+                                        tint = SuccessGreen,
                                         modifier = Modifier.size(20.dp)
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
@@ -392,7 +393,7 @@ fun HydrationGoalCalculatorDialog(
                                         text = "هدف پیشنهادی روزانه",
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF14532D)
+                                        color = MaterialTheme.colorScheme.onSurface
                                     )
                                 }
 
@@ -400,14 +401,14 @@ fun HydrationGoalCalculatorDialog(
                                     text = "${DateTimeUtils.toPersianDigits(calculationResult.recommendedGoalMl.toString())} میلی‌لیتر",
                                     fontSize = 20.sp,
                                     fontWeight = FontWeight.Black,
-                                    color = Color(0xFF15803D)
+                                    color = MaterialTheme.colorScheme.primary
                                 )
                             }
 
                             Text(
                                 text = "معادل حدود ${DateTimeUtils.toPersianDigits(calculationResult.recommendedGlasses.toString())} لیوان استاندارد آب در روز",
                                 fontSize = 12.sp,
-                                color = Color(0xFF166534),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontWeight = FontWeight.Medium,
                                 modifier = Modifier.padding(top = 2.dp)
                             )
@@ -421,37 +422,37 @@ fun HydrationGoalCalculatorDialog(
                             ) {
                                 Box(
                                     modifier = Modifier
-                                        .background(Color.White, RoundedCornerShape(8.dp))
+                                        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
                                         .padding(horizontal = 8.dp, vertical = 4.dp)
                                 ) {
                                     Text(
                                         text = "پایه: ${DateTimeUtils.toPersianDigits(calculationResult.baselineMl.toString())}ml",
                                         fontSize = 10.sp,
-                                        color = Color(0xFF475569)
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
 
                                 Box(
                                     modifier = Modifier
-                                        .background(Color.White, RoundedCornerShape(8.dp))
+                                        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
                                         .padding(horizontal = 8.dp, vertical = 4.dp)
                                 ) {
                                     Text(
                                         text = "تحرک: +${DateTimeUtils.toPersianDigits(calculationResult.activityAdditionMl.toString())}ml",
                                         fontSize = 10.sp,
-                                        color = Color(0xFF475569)
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
 
                                 Box(
                                     modifier = Modifier
-                                        .background(Color.White, RoundedCornerShape(8.dp))
+                                        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
                                         .padding(horizontal = 8.dp, vertical = 4.dp)
                                 ) {
                                     Text(
                                         text = "اقلیم: +${DateTimeUtils.toPersianDigits(calculationResult.climateAdditionMl.toString())}ml",
                                         fontSize = 10.sp,
-                                        color = Color(0xFF475569)
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                             }
@@ -461,7 +462,7 @@ fun HydrationGoalCalculatorDialog(
                             Text(
                                 text = calculationResult.explanation,
                                 fontSize = 11.sp,
-                                color = Color(0xFF334155),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 lineHeight = 16.sp
                             )
                         }
@@ -482,7 +483,7 @@ fun HydrationGoalCalculatorDialog(
                             )
                         },
                         shape = RoundedCornerShape(14.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = NooshPrimary),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp)
@@ -493,7 +494,8 @@ fun HydrationGoalCalculatorDialog(
                         Text(
                             text = "اعمال به عنوان هدف روزانه من (${DateTimeUtils.toPersianDigits(calculationResult.recommendedGoalMl.toString())} ml)",
                             fontSize = 13.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
                     }
 
@@ -506,7 +508,7 @@ fun HydrationGoalCalculatorDialog(
                             .fillMaxWidth()
                             .height(44.dp)
                     ) {
-                        Text(text = "انصراف", fontSize = 12.sp, color = Color(0xFF64748B))
+                        Text(text = "انصراف", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }

@@ -84,13 +84,13 @@ fun RechartsWeeklyTrendScreen(
                 title = {
                     Column {
                         Text(
-                            text = "روند خطی ۷ روزه Recharts",
+                            text = "روند خطی ۷ روزه مصرف آب",
                             fontSize = 17.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onBackground
                         )
                         Text(
-                            text = "تحلیل بصری مصرف آب با نمودار خطی Recharts",
+                            text = "تحلیل دقیق روند مصرف آب در هفته گذشته",
                             fontSize = 11.sp,
                             color = Color(0xFF64748B)
                         )
@@ -157,7 +157,8 @@ fun RechartsWeeklyTrendScreen(
                 // Recharts Clean Line Chart Card
                 Card(
                     shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -178,28 +179,28 @@ fun RechartsWeeklyTrendScreen(
                                     modifier = Modifier
                                         .size(32.dp)
                                         .clip(CircleShape)
-                                        .background(NooshSubtleBlue),
+                                        .background(MaterialTheme.colorScheme.surfaceVariant),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
                                         imageVector = Icons.AutoMirrored.Filled.ShowChart,
                                         contentDescription = null,
-                                        tint = NooshPrimary,
+                                        tint = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.size(18.dp)
                                     )
                                 }
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Column {
                                     Text(
-                                        text = "نمودار خطی هیدراتاسیون Recharts",
+                                        text = "نمودار روند مصرف آب",
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF0F172A)
+                                        color = MaterialTheme.colorScheme.onSurface
                                     )
                                     Text(
                                         text = "روند مصرف ۷ روز اخیر همراه با خط هدف",
                                         fontSize = 11.sp,
-                                        color = Color(0xFF64748B)
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                             }
@@ -207,14 +208,14 @@ fun RechartsWeeklyTrendScreen(
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(8.dp))
-                                    .background(Color(0xFFE0F2FE))
+                                    .background(MaterialTheme.colorScheme.surfaceVariant)
                                     .padding(horizontal = 8.dp, vertical = 4.dp)
                             ) {
                                 Text(
-                                    text = "Recharts JS",
+                                    text = "روند هفتگی",
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF0369A1)
+                                    color = MaterialTheme.colorScheme.primary
                                 )
                             }
                         }
@@ -235,7 +236,8 @@ fun RechartsWeeklyTrendScreen(
                 // Weekly Trend Analysis Card
                 Card(
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFECFDF5)),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
@@ -256,13 +258,13 @@ fun RechartsWeeklyTrendScreen(
                                 text = "تحلیل روند مصرف: ${DateTimeUtils.toPersianDigits(trendPct.toString())}٪ تغییر نسبت به هفته پیش",
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF065F46)
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = "حفظ خط افقی پیوسته نزدیک به هدف ۲۰۰۰ میلی‌لیتر نشان‌دهنده هیدراتاسیون متعادل و منظم است.",
                                 fontSize = 11.sp,
-                                color = Color(0xFF047857),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 lineHeight = 16.sp
                             )
                         }
@@ -278,7 +280,8 @@ fun RechartsWeeklyTrendScreen(
                 ) {
                     Card(
                         shape = RoundedCornerShape(14.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
                         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                         modifier = Modifier.weight(1f)
                     ) {
@@ -287,21 +290,22 @@ fun RechartsWeeklyTrendScreen(
                                 text = "🌟 اوج مصرف هفته",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFF0284C7)
+                                color = MaterialTheme.colorScheme.primary
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = bestDay?.let { "${it.dayName}: ${DateTimeUtils.toPersianDigits(it.amountMl.toString())}ml" } ?: "-",
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Black,
-                                color = Color(0xFF0F172A)
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }
 
                     Card(
                         shape = RoundedCornerShape(14.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
                         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                         modifier = Modifier.weight(1f)
                     ) {
@@ -310,14 +314,14 @@ fun RechartsWeeklyTrendScreen(
                                 text = "📉 کمترین مصرف هفته",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFF64748B)
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = lowestDay?.let { "${it.dayName}: ${DateTimeUtils.toPersianDigits(it.amountMl.toString())}ml" } ?: "-",
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Black,
-                                color = Color(0xFF0F172A)
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }
@@ -358,7 +362,8 @@ private fun TrendMetricCard(
 ) {
     Card(
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         modifier = modifier
     ) {
@@ -371,7 +376,7 @@ private fun TrendMetricCard(
             Text(
                 text = title,
                 fontSize = 11.sp,
-                color = Color(0xFF64748B),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Medium
             )
             Spacer(modifier = Modifier.height(4.dp))
@@ -396,9 +401,12 @@ private fun DailyDetailRow(
     Card(
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (day.isToday) Color(0xFFF0F9FF) else Color.White
+            containerColor = if (day.isToday) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface
         ),
-        border = if (day.isToday) androidx.compose.foundation.BorderStroke(1.dp, NooshPrimary.copy(alpha = 0.4f)) else null,
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp,
+            if (day.isToday) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f) else MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -412,13 +420,13 @@ private fun DailyDetailRow(
                 modifier = Modifier
                     .size(36.dp)
                     .clip(CircleShape)
-                    .background(if (isGoalAchieved) Color(0xFFDCFCE7) else Color(0xFFF1F5F9)),
+                    .background(if (isGoalAchieved) Color(0xFFDCFCE7).copy(alpha = 0.3f) else MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = if (isGoalAchieved) Icons.Default.CheckCircle else Icons.Default.LocalDrink,
                     contentDescription = null,
-                    tint = if (isGoalAchieved) SuccessGreen else Color(0xFF64748B),
+                    tint = if (isGoalAchieved) SuccessGreen else MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(18.dp)
                 )
             }
@@ -434,13 +442,13 @@ private fun DailyDetailRow(
                         text = if (day.isToday) "${day.dayName} (امروز)" else day.dayName,
                         fontSize = 13.sp,
                         fontWeight = if (day.isToday) FontWeight.Bold else FontWeight.Medium,
-                        color = Color(0xFF0F172A)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = "${DateTimeUtils.toPersianDigits(day.amountMl.toString())} / ${DateTimeUtils.toPersianDigits(dailyGoalMl.toString())} ml",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (isGoalAchieved) SuccessGreen else Color(0xFF0284C7)
+                        color = if (isGoalAchieved) SuccessGreen else MaterialTheme.colorScheme.primary
                     )
                 }
 
@@ -452,8 +460,8 @@ private fun DailyDetailRow(
                         .fillMaxWidth()
                         .height(5.dp)
                         .clip(RoundedCornerShape(3.dp)),
-                    color = if (isGoalAchieved) SuccessGreen else NooshPrimary,
-                    trackColor = Color(0xFFE2E8F0)
+                    color = if (isGoalAchieved) SuccessGreen else MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant
                 )
             }
         }

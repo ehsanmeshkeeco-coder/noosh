@@ -1,6 +1,8 @@
 package com.example.presentation.screens
 
+import android.app.Activity
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,19 +14,25 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.ErrorOutline
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -45,6 +53,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -62,12 +73,20 @@ fun AuthScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val activity = context as? Activity
     val authState by viewModel.authState.collectAsState()
+
+    // When the user is NOT authenticated, pressing back MUST exit the application
+    BackHandler(enabled = authState !is AuthState.Authenticated) {
+        activity?.finish()
+    }
 
     var nameInput by remember { mutableStateOf("") }
     var emailInput by remember { mutableStateOf("") }
     var passwordInput by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var isSubmitting by remember { mutableStateOf(false) }
 
     val scrollState = rememberScrollState()
 
@@ -80,47 +99,56 @@ fun AuthScreen(
             .testTag("auth_screen"),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Top Back Button (Only visible if user can go back or is logged in)
+        // Top Back Button (Only visible if user is already authenticated and opened from Profile)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Start
         ) {
-            IconButton(onClick = onNavigateBack) {
-                Icon(
-                    imageVector = Icons.Default.ArrowForward,
-                    contentDescription = "بازگشت",
-                    tint = Color(0xFF475569)
-                )
+            if (authState is AuthState.Authenticated) {
+                IconButton(
+                    onClick = onNavigateBack,
+                    modifier = Modifier.testTag("btn_auth_back")
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "بازگشت",
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            } else {
+                Spacer(modifier = Modifier.height(48.dp))
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         NooshCharacterView(size = 90.dp)
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(18.dp))
 
         Text(
             text = "ورود و ثبت‌نام در نوش",
             fontSize = 22.sp,
             fontWeight = FontWeight.ExtraBold,
-            color = Color(0xFF0F172A),
+            color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center
         )
 
         Text(
-            text = "با ثبت اطلاعات، سوابق مصرف آب و همراه سلامت شما همیشه محفوظ می‌ماند",
+            text = "با ورود به حساب کاربری، اطلاعات و پیشرفت مصرف آب شما همگام‌سازی و حفظ می‌شود",
             fontSize = 13.sp,
-            color = Color(0xFF64748B),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 8.dp, bottom = 24.dp)
+            modifier = Modifier.padding(top = 8.dp, bottom = 20.dp)
         )
 
         when (val state = authState) {
             is AuthState.Authenticated -> {
+                // User is currently authenticated: display profile & account control
                 Card(
                     shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -134,13 +162,13 @@ fun AuthScreen(
                             modifier = Modifier
                                 .size(68.dp)
                                 .clip(CircleShape)
-                                .background(NooshSubtleBlue),
+                                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Person,
                                 contentDescription = null,
-                                tint = NooshPrimary,
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(36.dp)
                             )
                         }
@@ -151,31 +179,30 @@ fun AuthScreen(
                             text = state.user.firstName,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF0F172A)
+                            color = MaterialTheme.colorScheme.onSurface
                         )
 
                         Text(
                             text = state.user.email,
                             fontSize = 13.sp,
-                            color = Color(0xFF64748B)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
 
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(6.dp))
 
                         Text(
-                            text = "شناسه Clerk: ${state.user.id}",
+                            text = "شناسه کاربر: ${state.user.id}",
                             fontSize = 11.sp,
-                            color = Color(0xFF94A3B8)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
                         )
 
                         Spacer(modifier = Modifier.height(10.dp))
 
-                        val statusLabel = if (state.user.isGuest) "حالت مهمان (آفلاین)" else "حساب کاربری فعال و متصل"
                         Text(
-                            text = statusLabel,
+                            text = "حساب کاربری شما فعال و متصل است ✓",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (state.user.isGuest) Color(0xFFD97706) else Color(0xFF059669)
+                            color = SuccessGreen
                         )
 
                         Spacer(modifier = Modifier.height(24.dp))
@@ -184,11 +211,12 @@ fun AuthScreen(
                             onClick = onAuthSuccess,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(50.dp),
+                                .height(50.dp)
+                                .testTag("btn_enter_app"),
                             shape = RoundedCornerShape(14.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = NooshPrimary)
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                         ) {
-                            Text("ورود به صفحه اصلی", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                            Text("ورود به برنامه", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
                         }
 
                         Spacer(modifier = Modifier.height(10.dp))
@@ -200,20 +228,22 @@ fun AuthScreen(
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(46.dp),
+                                .height(46.dp)
+                                .testTag("btn_sign_out"),
                             shape = RoundedCornerShape(14.dp)
                         ) {
-                            Text("خروج از حساب", color = Color(0xFFDC2626), fontSize = 13.sp)
+                            Text("خروج از حساب کاربری", color = Color(0xFFDC2626), fontSize = 13.sp)
                         }
                     }
                 }
             }
 
             else -> {
-                // Quick registration / sign-in Form
+                // User is unauthenticated: display authentication form
                 Card(
                     shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -223,29 +253,64 @@ fun AuthScreen(
                             .padding(22.dp)
                     ) {
                         Text(
-                            text = "مشخصات حساب",
+                            text = "مشخصات حساب کاربری",
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF0F172A),
+                            color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.padding(bottom = 12.dp)
                         )
 
+                        // Error Banner if authentication fails
+                        if (!errorMessage.isNullOrBlank()) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(Color(0xFFFEF2F2).copy(alpha = 0.3f))
+                                    .padding(12.dp)
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.ErrorOutline,
+                                        contentDescription = null,
+                                        tint = Color(0xFFDC2626),
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = errorMessage ?: "",
+                                        color = Color(0xFFDC2626),
+                                        fontSize = 12.sp,
+                                        lineHeight = 18.sp
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(14.dp))
+                        }
+
                         OutlinedTextField(
                             value = nameInput,
-                            onValueChange = { nameInput = it },
+                            onValueChange = {
+                                nameInput = it
+                                errorMessage = null
+                            },
                             label = { Text("نام و نام خانوادگی") },
                             leadingIcon = {
                                 Icon(
                                     Icons.Default.Person,
                                     contentDescription = null,
-                                    tint = Color(0xFF64748B)
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             },
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag("input_auth_name"),
                             shape = RoundedCornerShape(14.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = NooshPrimary,
-                                unfocusedBorderColor = Color(0xFFCBD5E1)
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
                             ),
                             singleLine = true
                         )
@@ -254,20 +319,26 @@ fun AuthScreen(
 
                         OutlinedTextField(
                             value = emailInput,
-                            onValueChange = { emailInput = it },
+                            onValueChange = {
+                                emailInput = it
+                                errorMessage = null
+                            },
                             label = { Text("آدرس ایمیل") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                             leadingIcon = {
                                 Icon(
                                     Icons.Default.Email,
                                     contentDescription = null,
-                                    tint = Color(0xFF64748B)
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             },
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag("input_auth_email"),
                             shape = RoundedCornerShape(14.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = NooshPrimary,
-                                unfocusedBorderColor = Color(0xFFCBD5E1)
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
                             ),
                             singleLine = true
                         )
@@ -276,40 +347,81 @@ fun AuthScreen(
 
                         OutlinedTextField(
                             value = passwordInput,
-                            onValueChange = { passwordInput = it },
-                            label = { Text("رمز عبور (اختیاری برای Clerk)") },
-                            visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
-                            modifier = Modifier.fillMaxWidth(),
+                            onValueChange = {
+                                passwordInput = it
+                                errorMessage = null
+                            },
+                            label = { Text("رمز عبور (حداقل ۸ کاراکتر)") },
+                            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Default.Lock,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            },
+                            trailingIcon = {
+                                val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                                val desc = if (passwordVisible) "مخفی کردن رمز" else "نمایش رمز"
+                                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                    Icon(imageVector = image, contentDescription = desc, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag("input_auth_password"),
                             shape = RoundedCornerShape(14.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = NooshPrimary,
-                                unfocusedBorderColor = Color(0xFFCBD5E1)
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
                             ),
                             singleLine = true
                         )
 
                         Spacer(modifier = Modifier.height(22.dp))
 
-                        var isSubmitting by remember { mutableStateOf(false) }
-
                         Button(
                             onClick = {
-                                if (emailInput.isNotBlank()) {
-                                    val name = nameInput.ifBlank { "کاربر نوش" }
-                                    isSubmitting = true
-                                    viewModel.signInWithEmail(emailInput.trim(), name.trim()) { message ->
-                                        isSubmitting = false
-                                        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                                val email = emailInput.trim()
+                                val name = nameInput.trim()
+                                val pwd = passwordInput.trim()
+
+                                if (email.isBlank()) {
+                                    errorMessage = "لطفاً آدرس ایمیل خود را وارد کنید."
+                                    return@Button
+                                }
+                                if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                                    errorMessage = "فرمت آدرس ایمیل وارد شده معتبر نیست."
+                                    return@Button
+                                }
+                                if (pwd.isNotBlank() && pwd.length < 8) {
+                                    errorMessage = "رمز عبور باید حداقل ۸ کاراکتر باشد."
+                                    return@Button
+                                }
+
+                                errorMessage = null
+                                isSubmitting = true
+                                viewModel.signInWithEmail(
+                                    email = email,
+                                    name = name.ifBlank { email.substringBefore("@") },
+                                    password = pwd.ifBlank { null }
+                                ) { isSuccess, message ->
+                                    isSubmitting = false
+                                    if (isSuccess) {
+                                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                                         onAuthSuccess()
+                                    } else {
+                                        errorMessage = message
+                                        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
                                     }
-                                } else {
-                                    Toast.makeText(context, "لطفاً ایمیل خود را وارد کنید", Toast.LENGTH_SHORT).show()
                                 }
                             },
                             enabled = !isSubmitting,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(52.dp),
+                                .height(52.dp)
+                                .testTag("btn_submit_auth"),
                             shape = RoundedCornerShape(14.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = NooshPrimary)
                         ) {
@@ -320,25 +432,8 @@ fun AuthScreen(
                                     strokeWidth = 2.dp
                                 )
                             } else {
-                                Text("ورود و ساخت حساب در Clerk", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                Text("ورود به حساب کاربری", fontSize = 15.sp, fontWeight = FontWeight.Bold)
                             }
-                        }
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        OutlinedButton(
-                            onClick = {
-                                val guestName = nameInput.trim().ifBlank { "کاربر مهمان" }
-                                viewModel.continueAsGuest(guestName)
-                                Toast.makeText(context, "ورود به عنوان مهمان", Toast.LENGTH_SHORT).show()
-                                onAuthSuccess()
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp),
-                            shape = RoundedCornerShape(14.dp)
-                        ) {
-                            Text("ادامه به عنوان مهمان", fontSize = 14.sp, color = Color(0xFF475569))
                         }
                     }
                 }

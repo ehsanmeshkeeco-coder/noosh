@@ -48,7 +48,11 @@ fun WeeklyBarChart(
 ) {
     Card(
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp,
+            MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         modifier = modifier
             .fillMaxWidth()
@@ -68,13 +72,13 @@ fun WeeklyBarChart(
                     text = "نمودار ۷ روز گذشته",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Text(
                     text = "هدف: ${DateTimeUtils.toPersianDigits(goalMl.toString())} میلی‌لیتر",
                     fontSize = 12.sp,
-                    color = Color(0xFF64748B),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Medium
                 )
             }
@@ -90,13 +94,14 @@ fun WeeklyBarChart(
                     .height(180.dp)
             ) {
                 // Goal reference line
+                val lineCol = MaterialTheme.colorScheme.outline
                 Canvas(modifier = Modifier.fillMaxSize()) {
                     val w = size.width
                     val h = size.height
                     val goalY = h - (goalMl.toFloat() / maxDisplayAmount * h)
 
                     drawLine(
-                        color = Color(0xFF94A3B8),
+                        color = lineCol,
                         start = Offset(0f, goalY),
                         end = Offset(w, goalY),
                         strokeWidth = 2.dp.toPx(),
@@ -130,12 +135,12 @@ fun WeeklyBarChart(
                 Box(
                     modifier = Modifier
                         .size(10.dp)
-                        .background(NooshPrimary, RoundedCornerShape(2.dp))
+                        .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
                 )
                 Text(
                     text = "میزان مصرف آب",
                     fontSize = 11.sp,
-                    color = Color(0xFF64748B),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(start = 6.dp, end = 16.dp)
                 )
 
@@ -143,12 +148,12 @@ fun WeeklyBarChart(
                     modifier = Modifier
                         .width(16.dp)
                         .height(2.dp)
-                        .background(Color(0xFF94A3B8))
+                        .background(MaterialTheme.colorScheme.outline)
                 )
                 Text(
                     text = "خط هدف روزانه",
                     fontSize = 11.sp,
-                    color = Color(0xFF64748B),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(start = 6.dp)
                 )
             }
@@ -174,7 +179,7 @@ private fun DayBarItem(
                 text = DateTimeUtils.toPersianDigits((day.amountMl / 250).toString()),
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
-                color = if (day.isToday) NooshPrimary else Color(0xFF64748B)
+                color = if (day.isToday) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
             )
         } else {
             Spacer(modifier = Modifier.height(14.dp))
@@ -194,7 +199,7 @@ private fun DayBarItem(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
-                    .background(NooshSubtleBlue.copy(alpha = 0.4f))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
             )
 
             // Fill Bar
@@ -205,9 +210,9 @@ private fun DayBarItem(
                     .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
                     .background(
                         if (isGoalAchieved) {
-                            Brush.verticalGradient(listOf(NooshPrimaryLight, NooshPrimary))
+                            Brush.verticalGradient(listOf(Color(0xFF34D399), Color(0xFF10B981)))
                         } else if (day.isToday) {
-                            Brush.verticalGradient(listOf(NooshPrimary, Color(0xFF0284C7)))
+                            Brush.verticalGradient(listOf(MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.primary))
                         } else {
                             Brush.verticalGradient(listOf(Color(0xFF93C5FD), Color(0xFF60A5FA)))
                         }
@@ -222,7 +227,7 @@ private fun DayBarItem(
             text = day.dayName,
             fontSize = 11.sp,
             fontWeight = if (day.isToday) FontWeight.Black else FontWeight.Medium,
-            color = if (day.isToday) NooshPrimary else Color(0xFF475569)
+            color = if (day.isToday) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

@@ -77,7 +77,7 @@ fun MonthlyReportScreen(
             Text(
                 text = report?.monthTitle ?: "ماه جاری",
                 fontSize = 13.sp,
-                color = Color(0xFF64748B),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 2.dp)
@@ -89,7 +89,7 @@ fun MonthlyReportScreen(
             val totalLiters = (report?.totalConsumedMl ?: 0) / 1000f
             Card(
                 shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = NooshPrimary),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
@@ -101,20 +101,20 @@ fun MonthlyReportScreen(
                     Text(
                         text = "کل آب مصرف شده در این ماه",
                         fontSize = 13.sp,
-                        color = Color.White.copy(alpha = 0.85f)
+                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f)
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
                         text = "${DateTimeUtils.toPersianDigits(String.format("%.1f", totalLiters))} لیتر",
                         fontSize = 36.sp,
                         fontWeight = FontWeight.Black,
-                        color = Color.White
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
                         text = "میانگین روزانه: ${DateTimeUtils.toPersianDigits((report?.dailyAverageMl ?: 0).toString())} میلی‌لیتر (${(report?.dailyAverageMl ?: 0) / 250} لیوان)",
                         fontSize = 13.sp,
-                        color = Color.White.copy(alpha = 0.9f)
+                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.9f)
                     )
                 }
             }
@@ -129,7 +129,8 @@ fun MonthlyReportScreen(
                 // Best Day
                 Card(
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
                     elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                     modifier = Modifier.weight(1f)
                 ) {
@@ -143,7 +144,7 @@ fun MonthlyReportScreen(
                                 modifier = Modifier
                                     .size(32.dp)
                                     .clip(CircleShape)
-                                    .background(Color(0xFFDCFCE7)),
+                                    .background(MaterialTheme.colorScheme.surfaceVariant),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
@@ -158,7 +159,7 @@ fun MonthlyReportScreen(
                                 text = "بهترین روز",
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF0F172A)
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                         Spacer(modifier = Modifier.height(10.dp))
@@ -171,7 +172,7 @@ fun MonthlyReportScreen(
                         Text(
                             text = report?.bestDayDate?.ifBlank { "ثبت شده" } ?: "ثبت شده",
                             fontSize = 11.sp,
-                            color = Color(0xFF64748B)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -179,7 +180,8 @@ fun MonthlyReportScreen(
                 // Lowest Day
                 Card(
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
                     elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                     modifier = Modifier.weight(1f)
                 ) {
@@ -193,7 +195,7 @@ fun MonthlyReportScreen(
                                 modifier = Modifier
                                     .size(32.dp)
                                     .clip(CircleShape)
-                                    .background(Color(0xFFFEE2E2)),
+                                    .background(MaterialTheme.colorScheme.surfaceVariant),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
@@ -208,7 +210,7 @@ fun MonthlyReportScreen(
                                 text = "کم‌ترین روز",
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF0F172A)
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                         Spacer(modifier = Modifier.height(10.dp))
@@ -221,7 +223,7 @@ fun MonthlyReportScreen(
                         Text(
                             text = report?.lowestDayDate?.ifBlank { "ثبت شده" } ?: "ثبت شده",
                             fontSize = 11.sp,
-                            color = Color(0xFF64748B)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -232,7 +234,8 @@ fun MonthlyReportScreen(
             // Reminder Completion Rate Card
             Card(
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -248,13 +251,13 @@ fun MonthlyReportScreen(
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(CircleShape)
-                                .background(NooshSubtleBlue),
+                                .background(MaterialTheme.colorScheme.surfaceVariant),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.NotificationsActive,
                                 contentDescription = null,
-                                tint = NooshPrimary,
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -264,12 +267,12 @@ fun MonthlyReportScreen(
                                 text = stringResource(R.string.reminders_completion_rate),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF0F172A)
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
                                 text = "${DateTimeUtils.toPersianDigits((report?.completedReminders ?: 0).toString())} یادآور تکمیل شده",
                                 fontSize = 12.sp,
-                                color = Color(0xFF64748B)
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -278,7 +281,7 @@ fun MonthlyReportScreen(
                         text = "${DateTimeUtils.toPersianDigits((report?.goalCompletionRate ?: 85).toString())}٪",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Black,
-                        color = NooshPrimary
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
             }
@@ -288,7 +291,8 @@ fun MonthlyReportScreen(
             // Streak & Achievements Card
             Card(
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)),
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -320,12 +324,12 @@ fun MonthlyReportScreen(
                                 text = "طولانی‌ترین زنجیره سلامتی",
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF0F172A)
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
                                 text = "زنجیره فعلی: ${DateTimeUtils.toPersianDigits((report?.currentStreakDays ?: 1).toString())} روز",
                                 fontSize = 12.sp,
-                                color = Color(0xFF64748B)
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -344,7 +348,8 @@ fun MonthlyReportScreen(
             // Health Insights
             Card(
                 shape = RoundedCornerShape(14.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFEFF6FF)),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
@@ -356,14 +361,14 @@ fun MonthlyReportScreen(
                     Icon(
                         imageVector = Icons.Default.Lightbulb,
                         contentDescription = null,
-                        tint = Color(0xFF2563EB),
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(22.dp)
                     )
                     Spacer(modifier = Modifier.width(10.dp))
                     Text(
                         text = "نکته سلامتی این ماه: بیشترین بازدهی مصرف آب شما در ساعات قبل از ظهر است. نوشیدن یک لیوان آب بلافاصله پس از بیداری متابولیسم شما را فعال می‌کند.",
                         fontSize = 13.sp,
-                        color = Color(0xFF1E40AF),
+                        color = MaterialTheme.colorScheme.onSurface,
                         lineHeight = 20.sp
                     )
                 }

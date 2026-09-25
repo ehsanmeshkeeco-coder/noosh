@@ -72,6 +72,8 @@ fun CircularWaterProgress(
 
     val progressFraction = (percentage / 100f).coerceIn(0f, 1f)
 
+    val emptyBgColor = MaterialTheme.colorScheme.surfaceVariant
+
     Box(
         modifier = modifier
             .size(size)
@@ -83,8 +85,8 @@ fun CircularWaterProgress(
             modifier = Modifier
                 .fillMaxSize()
                 .clip(CircleShape)
-                .background(NooshSubtleBlue.copy(alpha = 0.5f))
-                .border(6.dp, NooshSubtleBlue, CircleShape)
+                .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f))
+                .border(6.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f), CircleShape)
         )
 
         // Wave Canvas inside Circle
@@ -105,7 +107,7 @@ fun CircularWaterProgress(
 
             clipPath(clipCircle) {
                 // Background behind water
-                drawRect(color = Color(0xFFF0F8FF))
+                drawRect(color = emptyBgColor)
 
                 // Back Wave (Lighter blue)
                 val backWavePath = Path().apply {
