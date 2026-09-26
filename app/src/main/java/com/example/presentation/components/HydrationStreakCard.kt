@@ -39,6 +39,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -52,6 +53,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -100,7 +102,7 @@ fun HydrationStreakCard(
         label = "flameScale"
     )
 
-    val isDarkTheme = MaterialTheme.colorScheme.surface.let { (it.red * 0.299f + it.green * 0.587f + it.blue * 0.114f) < 0.5f }
+    val isDarkTheme = MaterialTheme.colorScheme.surface.luminance() < 0.5f
 
     Card(
         shape = RoundedCornerShape(22.dp),
@@ -386,7 +388,7 @@ private fun BadgeItemView(
         BadgeTier.DIAMOND -> Color(0xFF06B6D4)
     }
 
-    val isDarkTheme = MaterialTheme.colorScheme.surface.let { (it.red * 0.299f + it.green * 0.587f + it.blue * 0.114f) < 0.5f }
+    val isDarkTheme = MaterialTheme.colorScheme.surface.luminance() < 0.5f
 
     val cardBg = if (badge.isUnlocked) {
         if (isDarkTheme) {

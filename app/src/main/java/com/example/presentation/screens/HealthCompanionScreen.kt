@@ -36,6 +36,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -67,6 +68,7 @@ import com.example.domain.model.HealthEventType
 import com.example.domain.model.HealthStatusEvaluation
 import com.example.presentation.theme.NooshPrimary
 import com.example.presentation.theme.NooshSubtleBlue
+import com.example.presentation.theme.SuccessGreen
 import com.example.presentation.viewmodel.MainViewModel
 
 @Composable
@@ -157,7 +159,7 @@ fun HealthCompanionScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(Color(0xFFECFDF5))
+                                .background(SuccessGreen.copy(alpha = 0.15f))
                                 .padding(12.dp)
                         ) {
                             Row(
@@ -170,12 +172,12 @@ fun HealthCompanionScreen(
                                         text = "همراه متصل: ${activeCompanion?.companionName}",
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF065F46)
+                                        color = SuccessGreen
                                     )
                                     Text(
                                         text = "اتصال با سرور فعال است ✓",
                                         fontSize = 11.sp,
-                                        color = Color(0xFF047857)
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
 
@@ -246,7 +248,7 @@ fun HealthCompanionScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clip(RoundedCornerShape(12.dp))
-                                    .background(NooshSubtleBlue)
+                                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f))
                                     .padding(14.dp)
                             ) {
                                 Row(
@@ -258,13 +260,13 @@ fun HealthCompanionScreen(
                                         Text(
                                             text = "کد دعوت اختصاصی اتاق شما:",
                                             fontSize = 11.sp,
-                                            color = Color(0xFF475569)
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                         Text(
                                             text = DateTimeUtils.toPersianDigits(code),
                                             fontSize = 24.sp,
                                             fontWeight = FontWeight.Black,
-                                            color = NooshPrimary,
+                                            color = MaterialTheme.colorScheme.primary,
                                             letterSpacing = 4.sp
                                         )
                                     }
